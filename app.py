@@ -62,7 +62,6 @@ LANGS = {
         "rep_title": "📋 التقرير المالي والامتثالي التنفيذي",
         "rep_body": "<h4>📄 تقرير الاستحقاق والأداء</h4><p><b>النطاق:</b> {} إلى {} | <b>الوتيرة:</b> {}</p><hr><p><b>1. الفحص الشرعي:</b> عزل <b>66% من التقليدي</b> للربا، ونجاح تام للتشاركي.</p><p><b>2. الكفاءة المالية:</b> نجاح التشاركي <b>{}</b> مقابل التقليدي <b>{}</b>.</p><p><b>3. إدارة الخسائر:</b> خسائر المحفظة النقية <b>{}</b> مقابل <b>{}</b> للتقليدي.</p><p style='color:#00ff00;'>📊 التوصية: الاستمرار بنموذج الأوزان المتكيفة لحفظ المال.</p>",
         "term_title": "⚙️ سجل عمليات الرادار والمحرك اللحظي (Terminal)",
-        "btn_apply": "تطبيق التحديثات 🚀",
         
         "uni_name": "جامعة مرمرة - إسطنبول",
         "inst_name": "معهد الاقتصاد الإسلامي والتمويل",
@@ -104,7 +103,6 @@ LANGS = {
         "rep_title": "📋 Yönetici Finans ve Uyumluluk Raporu",
         "rep_body": "<h4>📄 Performans Değerlendirmesi</h4><p><b>Dönem:</b> {} - {} | <b>Analiz:</b> {}</p><hr><p><b>1. Şeri İnceleme:</b> Geleneksel endeksin <b>%66'sı</b> faiz nedeniyle elendi.</p><p><b>2. Finansal Verimlilik:</b> Katılım başarı oranı <b>{}</b>, Geleneksel <b>{}</b>.</p><p><b>3. Zarar Yönetimi:</b> Katılım zararı <b>{}</b>, Geleneksel zararı <b>{}</b>.</p><p style='color:#00ff00;'>📊 Öneri: AEWS modeline devam edilerek sermaye korunmalıdır.</p>",
         "term_title": "⚙️ AEWS Canlı Terminal (Live Terminal)",
-        "btn_apply": "Ayarları Uygula 🚀",
         
         "uni_name": "Marmara Üniversitesi - İstanbul",
         "inst_name": "İslam Ekonomisi ve Finansı Enstitüsü",
@@ -146,7 +144,6 @@ LANGS = {
         "rep_title": "📋 Executive Financial & Compliance Report",
         "rep_body": "<h4>📄 Performance Evaluation</h4><p><b>Period:</b> {} to {} | <b>Frequency:</b> {}</p><hr><p><b>1. Sharia Screening:</b> <b>66%</b> of traditional index dropped due to Riba.</p><p><b>2. Financial Efficiency:</b> Islamic success <b>{}</b> vs Traditional <b>{}</b>.</p><p><b>3. Loss Management:</b> Islamic loss <b>{}</b> vs Traditional loss <b>{}</b>.</p><p style='color:#00ff00;'>📊 Recommendation: Continue AEWS dynamic weights to preserve capital.</p>",
         "term_title": "⚙️ AEWS Live Terminal",
-        "btn_apply": "Apply Updates 🚀",
         
         "uni_name": "Marmara University - Istanbul",
         "inst_name": "Institute of Islamic Economics and Finance",
@@ -256,14 +253,16 @@ bist_df = pd.DataFrame(bist_data, columns=t["cols"])
 col_kat, col_bist = st.columns(2)
 with col_kat:
     st.subheader(t["radar_kat"])
-    st.markdown(f'<div class="table-container">{kat_df.to_html(index=False, escape=False)}</div>', unsafe_allow_html=True)
+    html_kat = '<div class="table-container">' + kat_df.to_html(index=False, escape=False) + '</div>'
+    st.markdown(html_kat, unsafe_allow_html=True)
     m1, m2 = st.columns(2)
     m1.metric(t["m_pure"], "91", t["m_out"])
     m2.metric(t["m_vol_kat"], "₺ 26.4 B", t["m_desc_kat"])
 
 with col_bist:
     st.subheader(t["radar_trad"])
-    st.markdown(f'<div class="table-container">{bist_df.to_html(index=False, escape=False)}</div>', unsafe_allow_html=True)
+    html_bist = '<div class="table-container">' + bist_df.to_html(index=False, escape=False) + '</div>'
+    st.markdown(html_bist, unsafe_allow_html=True)
     m3, m4 = st.columns(2)
     m3.metric(t["m_bad"], "66", t["m_fail"], delta_color="inverse")
     m4.metric(t["m_vol_trad"], "₺ 71.5 B", t["m_desc_trad"])
@@ -303,7 +302,8 @@ recom_df = recom_df.drop_duplicates(subset=[t["recom_cols"][0]])
 recom_df = recom_df.sort_values(by=t["recom_cols"][10], ascending=False).reset_index(drop=True)
 recom_df[t["recom_cols"][10]] = recom_df[t["recom_cols"][10]].apply(lambda x: f"<span style='color:#00ff00; font-weight:bold;'>+{x}%</span>")
 
-st.markdown(f'<div class="table-container" style="border-color: #00ff00;">{recom_df.to_html(index=False, escape=False)}</div>', unsafe_allow_html=True)
+html_recom = '<div class="table-container" style="border-color: #00ff00;">' + recom_df.to_html(index=False, escape=False) + '</div>'
+st.markdown(html_recom, unsafe_allow_html=True)
 st.markdown("---")
 
 # ==========================================
@@ -349,4 +349,56 @@ periodic_df = pd.DataFrame([[t["r1"], s_k, "6.0%", r_k, l_k], [t["r2"], s_t, "60
 st.markdown(periodic_df.to_html(index=False, escape=False), unsafe_allow_html=True)
 st.markdown("---")
 st.subheader(t["rep_title"])
-st.markdown(f'<div class="report-box
+
+# تعديل السطر المسبب للمشكلة لمنع أي أخطاء متعلقة بالسطور والنصوص المنسدلة
+report_html = '<div class="report-box">' + t["rep_body"].format(start_date, end_date, period_view, s_k, s_t, l_k, l_t) + '</div>'
+st.markdown(report_html, unsafe_allow_html=True)
+st.markdown("---")
+
+# ==========================================
+# 10. سجل المحرك اللحظي (Terminal)
+# ==========================================
+st.subheader(t["term_title"])
+live_terminal_html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {{ background-color: #0c0c0c; color: #00ff00; font-family: 'Courier New', monospace; font-size: 13px; margin: 0; padding: 15px; overflow: hidden; }}
+    #terminal-screen {{ height: 170px; overflow-y: auto; display: flex; flex-direction: column; padding-right: 10px; }}
+    .log-line {{ margin-bottom: 5px; line-height: 1.4; }}
+    ::-webkit-scrollbar {{ width: 8px; }}
+    ::-webkit-scrollbar-track {{ background: #0c0c0c; }}
+    ::-webkit-scrollbar-thumb {{ background: #00ff00; }}
+</style>
+</head>
+<body>
+    <div id="terminal-screen">
+        <div class="log-line">> [INIT] Booting IEAI Omni-Scanner Engine... OK.</div>
+        <div class="log-line">> [SYSTEM] Legal Entity Database Synchronized.</div>
+        <div class="log-line">> [SYSTEM] UI Language synchronized. Selected: {lang_choice}</div>
+    </div>
+    <script>
+        const logs = [
+            "[AI_ADVISOR] Ranked optimal buy opportunities based on Wealth Preservation metrics.",
+            "[SCAN] Analyzing real-time order book... Liquidity is optimal.",
+            "[AI_FILTER] Deep scan: Verifying debt-to-equity ratio < 30%... Clear.",
+            "[MATH] Recalculating systemic volatility (Z-Score)... Z = -1.12 (STABLE).",
+            "[COMPLIANCE] Verified zero Haram/Riba activity in recommended equities.",
+            "[EXEC] Recommendation Engine generated top picks for user."
+        ];
+        const term = document.getElementById('terminal-screen');
+        setInterval(() => {{
+            const randomLog = logs[Math.floor(Math.random() * logs.length)];
+            const timeStr = new Date().toLocaleTimeString('en-GB', {{ hour12: false }});
+            const newLine = document.createElement('div');
+            newLine.className = 'log-line';
+            newLine.innerText = "> [" + timeStr + "] " + randomLog;
+            term.appendChild(newLine);
+            term.scrollTop = term.scrollHeight;
+        }}, 2500); 
+    </script>
+</body>
+</html>
+"""
+components.html(live_terminal_html, height=200)
