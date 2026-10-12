@@ -1,0 +1,408 @@
+{
+  "verified_at": "2026-10-12T19:21:08.567873+00:00",
+  "implementation_commit": "8ab7585048dd8d4e95d45db23b037e0eed3d0319",
+  "engine_version": "0.2.0",
+  "acquisition_run_url": "https://github.com/abdalnour1992/IEAI-Sharia-Radar/actions/runs/38296962529",
+  "software_test_run_url": "https://github.com/abdalnour1992/IEAI-Sharia-Radar/actions/runs/38296962430",
+  "software_validation": {
+    "python_312": "73/73 PASS, no skips",
+    "python_313": "73/73 PASS, no skips",
+    "scope": "Software correctness, not confirmation of thesis hypotheses"
+  },
+  "artifact": {
+    "id": 11768024080,
+    "url": "https://github.com/abdalnour1992/IEAI-Sharia-Radar/actions/runs/38296962529/artifacts/11768024080",
+    "sha256": "2cb5f8bd02369e03f7eb967559d5a15b25eb46969f9bc6a4acd739d6dbccf78c",
+    "expires_at": "2026-12-11T19:21:09Z"
+  },
+  "acquisition_report": {
+    "status": "REAL_OFFICIAL_SOURCES_ACQUIRED_RESEARCH_DATASET_INCOMPLETE",
+    "retrieved_at": "2026-10-12T19:21:08.567873+00:00",
+    "study_start": "2021-10-01",
+    "study_end": "2025-12-31",
+    "index_coverage": {
+      "XK100": {
+        "rows": 1066,
+        "first": "2021-10-01",
+        "last": "2025-12-31"
+      },
+      "XK100_CFCNTLTL": {
+        "rows": 1066,
+        "first": "2021-10-01",
+        "last": "2025-12-31"
+      },
+      "XU100": {
+        "rows": 1066,
+        "first": "2021-10-01",
+        "last": "2025-12-31"
+      },
+      "XU100_CFNNTLTL": {
+        "rows": 1066,
+        "first": "2021-10-01",
+        "last": "2025-12-31"
+      },
+      "BISTTLREF": {
+        "rows": 1217,
+        "first": "2021-10-01",
+        "last": "2025-12-31"
+      }
+    },
+    "total_return_benchmarks_aligned": true,
+    "market_controls": {
+      "rows": 1066,
+      "market": "XU100_CFNNTLTL",
+      "rf_proxy": "BISTTLREF",
+      "frequency": "equity_close_to_close",
+      "units": "decimal_returns",
+      "currency": "TRY",
+      "date_convention": "BISTTLREF dated accrual shifted one equity interval to realized end date",
+      "independent_calendar_spot_checks": [
+        {
+          "start": "2021-09-30",
+          "end": "2021-10-01",
+          "computed_decimal_return": 0.0005019537394665985,
+          "official_decimal_return": 0.0005020000000000001,
+          "absolute_tolerance": 5.1e-07,
+          "period_days": 1,
+          "status": "matched"
+        },
+        {
+          "start": "2021-10-01",
+          "end": "2021-10-04",
+          "computed_decimal_return": 0.0015022827806583372,
+          "official_decimal_return": 0.001502,
+          "absolute_tolerance": 5.1e-07,
+          "period_days": 3,
+          "status": "matched"
+        }
+      ],
+      "status": "acquired_proxy_requires_methodological_review"
+    },
+    "membership_notice_count": 130,
+    "membership_documents": [
+      {
+        "source_id": "participation_changes_20250926",
+        "published_date": "2025-09-26",
+        "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1493516",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d992f6f660199869828ab3b2c",
+        "period_start": "2025-10-01",
+        "period_end": "2026-04-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 31,
+        "period_verified": true,
+        "decoded_pdf_sha256": "1d129d544a3678a9a51e52880ef7ba2989b59d68ac662e9def15d77aef648e84"
+      },
+      {
+        "source_id": "participation_changes_20250425",
+        "published_date": "2025-04-25",
+        "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1429792",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d96289e8c01966db1ef533000",
+        "period_start": "2025-05-01",
+        "period_end": "2025-09-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 49,
+        "period_verified": true,
+        "decoded_pdf_sha256": "bf4ff6d099047468d92decd0eb3147d912716c54a8c91f9670e41ff2e1443f64"
+      },
+      {
+        "source_id": "participation_changes_20241127",
+        "published_date": "2024-11-27",
+        "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1360880",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d930ceaeb01936ce9b5d24a1e",
+        "period_start": "2024-12-01",
+        "period_end": "2025-04-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 69,
+        "period_verified": true,
+        "decoded_pdf_sha256": "02b3375078eb76073a810b2d415e5090b0e20c1115377980b96393bf93ff71d2"
+      },
+      {
+        "source_id": "participation_changes_20240626",
+        "published_date": "2024-06-26",
+        "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1302173",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d90137b630190545328035fb7",
+        "period_start": "2024-07-01",
+        "period_end": "2024-11-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 71,
+        "period_verified": true,
+        "decoded_pdf_sha256": "3d03b91c717f9e3fb5d9a5bcffb8726a9602e910635479e746a6f43013a6407f"
+      },
+      {
+        "source_id": "participation_changes_20230927",
+        "published_date": "2023-09-27",
+        "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1197692",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d8a99cc91018ad6c23248772a",
+        "period_start": "2023-10-01",
+        "period_end": "2024-04-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 57,
+        "period_verified": true,
+        "decoded_pdf_sha256": "f78b703278e09a9e7aa6ff275219454ba0906f5c8c6bed793ed1f64629af18ec"
+      },
+      {
+        "source_id": "participation_changes_20230426",
+        "published_date": "2023-04-26",
+        "announcement_url": "https://www.borsaistanbul.com/duyuru/13067/01052023-30092023-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+        "url": "https://www.borsaistanbul.com/files/bist-katilimendeksleri-01052023-30092023-donemi-degisiklikleri.pdf",
+        "period_start": "2023-05-01",
+        "period_end": "2023-09-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 53,
+        "period_verified": true,
+        "decoded_pdf_sha256": "0fbd921ffad9eca38cf77ef9e0e90d925d4fcf9bb0303e268d5525d61ef9e95b"
+      },
+      {
+        "source_id": "participation_changes_20220927",
+        "published_date": "2022-09-27",
+        "announcement_url": "https://www.borsaistanbul.com/duyuru/14440/01102022-30042023-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+        "url": "https://www.borsaistanbul.com/files/bist-katilim-endeksleri-donemsel-degisiklikler.pdf",
+        "period_start": "2022-10-01",
+        "period_end": "2023-04-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 41,
+        "period_verified": true,
+        "decoded_pdf_sha256": "a82519ef52fc330d3bfce051bb9df20ed3ee37f2c3fd8c9b233249d567fe929b"
+      },
+      {
+        "source_id": "participation_changes_20220425",
+        "published_date": "2022-04-25",
+        "announcement_url": "https://www.borsaistanbul.com/duyuru/12885/01052022-30092022-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+        "url": "https://www.borsaistanbul.com/files/katilimendeksi_DuyuruEki_tr.pdf",
+        "period_start": "2022-05-01",
+        "period_end": "2022-09-30",
+        "review_status": "unreviewed",
+        "status": "change_candidates_require_review",
+        "candidate_rows": 61,
+        "period_verified": true,
+        "decoded_pdf_sha256": "4c8cbbcb15349a56f2c0b9043a10e7f5ee25d24a1b8b6d1c77c093624ce42d79"
+      }
+    ],
+    "blocking_gaps": [
+      "Reviewed complete initial XK100 membership snapshot with publication date",
+      "Reviewed exceptional changes, renames, exclusions and continuity coverage",
+      "Historical financials, KAFIF/activity attestations and original publication timestamps",
+      "Historical issued shares and effective capital events compatible with price/volume units",
+      "Turkish SMB/HML/RMW/CMA or audited broad-market inputs to construct them"
+    ],
+    "research_dataset_complete": false,
+    "research_hypotheses_confirmed": false,
+    "sha256": {
+      "benchmarks.csv": "a6d7743b12bb62396156757466bb4e902b8ca36a6202e5ac2ab9afc05af9499f",
+      "market_factors.csv": "a7eb7a598db03d4d2148eeb880781476238ef6bb6d349538d65bf128888987fa",
+      "membership_notice_inventory.csv": "ec8f742a6e9284229783ccec1caaede5501c4a6e39d930f6f30c32436bf23c95",
+      "membership_change_candidates.csv": "87cd1738cd234d30391de69dba3bdb3aa4b8b0e98f07e2240d1f776e3a5bb765"
+    },
+    "sources": [
+      {
+        "source_id": "XK100",
+        "url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XK100",
+        "retrieved_at": "2026-10-12T19:20:25.819455+00:00",
+        "final_url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XK100",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "8675969541d129547df088fc075bf5b25bc6790783118c5ad334700589ec30f9",
+        "byte_count": 74592,
+        "status": "downloaded",
+        "raw_file": "raw/XK100.bin"
+      },
+      {
+        "source_id": "XK100_CFCNTLTL",
+        "url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XK100_CFCNTLTL",
+        "retrieved_at": "2026-10-12T19:20:27.131124+00:00",
+        "final_url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XK100_CFCNTLTL",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "5e95b91bfec7886f766fd754dbdfb3168ce4484ef01db7bf2d4246259b43529f",
+        "byte_count": 86039,
+        "status": "downloaded",
+        "raw_file": "raw/XK100_CFCNTLTL.bin"
+      },
+      {
+        "source_id": "XU100",
+        "url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XU100",
+        "retrieved_at": "2026-10-12T19:20:28.222828+00:00",
+        "final_url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XU100",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "38bcc8b5be8653f5cf814e099764cb19ac3cd6e2dcfda6cd2a4a1cadeaff6d47",
+        "byte_count": 580514,
+        "status": "downloaded",
+        "raw_file": "raw/XU100.bin"
+      },
+      {
+        "source_id": "XU100_CFNNTLTL",
+        "url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XU100_CFNNTLTL",
+        "retrieved_at": "2026-10-12T19:20:30.481045+00:00",
+        "final_url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=XU100_CFNNTLTL",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "72c712114bc2a4d31c042ec67318b50448631e8302a3a3adecf22eeb37919866",
+        "byte_count": 513362,
+        "status": "downloaded",
+        "raw_file": "raw/XU100_CFNNTLTL.bin"
+      },
+      {
+        "source_id": "BISTTLREF",
+        "url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=BISTTLREF",
+        "retrieved_at": "2026-10-12T19:20:32.739169+00:00",
+        "final_url": "https://www.borsaistanbul.com/graphic.php?veriTuru=endeks-graphic&indexCode=BISTTLREF",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "b59efa28898fbc557988d16549110927ae8bf46686809c7360177cad719c2924",
+        "byte_count": 148355,
+        "status": "downloaded",
+        "raw_file": "raw/BISTTLREF.bin"
+      },
+      {
+        "source_id": "cash_reference_check_20211001",
+        "url": "https://www.borsaistanbul.com/bist-tlrefk.php?op=calculateType1&type=tlref&starting_date=2021-09-30&ending_date=2021-10-01",
+        "retrieved_at": "2026-10-12T19:20:35.729909+00:00",
+        "final_url": "https://www.borsaistanbul.com/bist-tlrefk.php?op=calculateType1&type=tlref&starting_date=2021-09-30&ending_date=2021-10-01",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "3c9bc87e836f7a741b0d7d21ccef09515b35f7268d7cd345bc359f78b715f293",
+        "byte_count": 164,
+        "status": "downloaded",
+        "raw_file": "raw/cash_reference_check_20211001.bin"
+      },
+      {
+        "source_id": "cash_reference_check_20211004",
+        "url": "https://www.borsaistanbul.com/bist-tlrefk.php?op=calculateType1&type=tlref&starting_date=2021-10-01&ending_date=2021-10-04",
+        "retrieved_at": "2026-10-12T19:20:43.710168+00:00",
+        "final_url": "https://www.borsaistanbul.com/bist-tlrefk.php?op=calculateType1&type=tlref&starting_date=2021-10-01&ending_date=2021-10-04",
+        "content_type": "application/json; charset=utf-8",
+        "http_status": 200,
+        "sha256": "7ad5268a8f6f94681784268e5addb300040baf6c1676e2b9b2dc72f5224fd535",
+        "byte_count": 164,
+        "status": "downloaded",
+        "raw_file": "raw/cash_reference_check_20211004.bin"
+      },
+      {
+        "source_id": "index_notices",
+        "url": "https://www.borsaistanbul.com/endeksler/endeks-duyurulari",
+        "retrieved_at": "2026-10-12T19:20:44.710348+00:00",
+        "final_url": "https://www.borsaistanbul.com/endeksler/endeks-duyurulari",
+        "content_type": "text/html; charset=UTF-8",
+        "http_status": 200,
+        "sha256": "6019f44015a90acfe96f2e3554d34ce076f74194d1522174df2da8185d964775",
+        "byte_count": 681870,
+        "status": "downloaded",
+        "raw_file": "raw/index_notices.bin"
+      },
+      {
+        "source_id": "participation_changes_20250926",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d992f6f660199869828ab3b2c",
+        "retrieved_at": "2026-10-12T19:20:48.938624+00:00",
+        "final_url": "https://www.kap.org.tr/tr/api/file/download/4028328d992f6f660199869828ab3b2c",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "f0c0af4fcf8b2a962c99b6f243c449353995a47fb3add74102b597784e550230",
+        "byte_count": 186517,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20250926.bin"
+      },
+      {
+        "source_id": "participation_changes_20250425",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d96289e8c01966db1ef533000",
+        "retrieved_at": "2026-10-12T19:20:50.814078+00:00",
+        "final_url": "https://www.kap.org.tr/tr/api/file/download/4028328d96289e8c01966db1ef533000",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "f2c68e8da16d2fe577f73650ee4ceb85f75aa3530f3057522f70441587147db8",
+        "byte_count": 1047857,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20250425.bin"
+      },
+      {
+        "source_id": "participation_changes_20241127",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d930ceaeb01936ce9b5d24a1e",
+        "retrieved_at": "2026-10-12T19:20:55.311754+00:00",
+        "final_url": "https://www.kap.org.tr/tr/api/file/download/4028328d930ceaeb01936ce9b5d24a1e",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "a5b192ac40d169b263a57d2c096ca20502ba44a8b1cdffc14df040c0d8014dd3",
+        "byte_count": 325529,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20241127.bin"
+      },
+      {
+        "source_id": "participation_changes_20240626",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d90137b630190545328035fb7",
+        "retrieved_at": "2026-10-12T19:20:57.097958+00:00",
+        "final_url": "https://www.kap.org.tr/tr/api/file/download/4028328d90137b630190545328035fb7",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "0add451be396b07a3f9c4f0ed77b92cce4700782638001529c493185ee8d43bb",
+        "byte_count": 274132,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20240626.bin"
+      },
+      {
+        "source_id": "participation_changes_20230927",
+        "url": "https://www.kap.org.tr/tr/api/file/download/4028328d8a99cc91018ad6c23248772a",
+        "retrieved_at": "2026-10-12T19:20:59.079737+00:00",
+        "final_url": "https://www.kap.org.tr/tr/api/file/download/4028328d8a99cc91018ad6c23248772a",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "9f2e8ffaa0c7a4963a4cc95267a512c0ad2810c9dc9a034a045dc6e4dd5eef50",
+        "byte_count": 324742,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20230927.bin"
+      },
+      {
+        "source_id": "participation_changes_20230426",
+        "url": "https://www.borsaistanbul.com/files/bist-katilimendeksleri-01052023-30092023-donemi-degisiklikleri.pdf",
+        "retrieved_at": "2026-10-12T19:21:00.774362+00:00",
+        "final_url": "https://www.borsaistanbul.com/files/bist-katilimendeksleri-01052023-30092023-donemi-degisiklikleri.pdf",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "0fbd921ffad9eca38cf77ef9e0e90d925d4fcf9bb0303e268d5525d61ef9e95b",
+        "byte_count": 399978,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20230426.bin"
+      },
+      {
+        "source_id": "participation_changes_20220927",
+        "url": "https://www.borsaistanbul.com/files/bist-katilim-endeksleri-donemsel-degisiklikler.pdf",
+        "retrieved_at": "2026-10-12T19:21:03.642559+00:00",
+        "final_url": "https://www.borsaistanbul.com/files/bist-katilim-endeksleri-donemsel-degisiklikler.pdf",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "a82519ef52fc330d3bfce051bb9df20ed3ee37f2c3fd8c9b233249d567fe929b",
+        "byte_count": 314086,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20220927.bin"
+      },
+      {
+        "source_id": "participation_changes_20220425",
+        "url": "https://www.borsaistanbul.com/files/katilimendeksi_DuyuruEki_tr.pdf",
+        "retrieved_at": "2026-10-12T19:21:06.037926+00:00",
+        "final_url": "https://www.borsaistanbul.com/files/katilimendeksi_DuyuruEki_tr.pdf",
+        "content_type": "application/pdf",
+        "http_status": 200,
+        "sha256": "4c8cbbcb15349a56f2c0b9043a10e7f5ee25d24a1b8b6d1c77c093624ce42d79",
+        "byte_count": 394552,
+        "status": "downloaded",
+        "raw_file": "raw/participation_changes_20220425.bin"
+      }
+    ],
+    "retrieval_failures": [],
+    "notes": [
+      "XK100 and XKTUM are different indices; no substitution",
+      "Only matching historical document periods yield change candidates",
+      "Reserve stocks are not actual members; no opening list is invented",
+      "BISTTLREF is an econometric cash-rate proxy, not a portfolio allocation or a guarantee",
+      "Market-only controls do not supply or certify local FF3/FF5 factors",
+      "Public KAP mass-data requests require the subscribed dissemination service; no mass corporate crawl",
+      "Availability uses publication day plus one conservatively; original timestamps require review"
+    ]
+  }
+}
