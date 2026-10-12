@@ -50,7 +50,10 @@ def run_experiment(dataset, protocol, allow_synthetic=False, progress=None):
     stage("next_session_execution_and_costs")
     tests = {name: simulate(scores, protocol, name) for name in STRATEGIES}
     factors = dataset.get("factors.csv")
-    reference = None if factors.empty else factors.set_index("date").rf
+    ff3_factors = dataset.get("factors_ff3.csv")
+    market_factors = dataset.get("market_factors.csv")
+    cash_reference = factors if not factors.empty else ff3_factors if not ff3_factors.empty else market_factors
+    reference = None if cash_reference.empty else cash_reference.set_index("date").rf
     metrics = {}
     for name, test in tests.items():
         metrics[name] = {"full_test": performance(test.daily, protocol, reference),
@@ -82,7 +85,9 @@ def run_experiment(dataset, protocol, allow_synthetic=False, progress=None):
         if kind != "total_return":
             warnings.append(f"{name} is PRICE-only; not a like-for-like total-return benchmark")
     if factors.empty:
-        warnings.append("No local-market factor data: FF3/FF5 cannot be reported")
+        warnings.append("No local-market FF5 data: FF5 cannot be reported")
+    if ff3_factors.empty:
+        warnings.append("No model-specific local-market FF3 data: FF3 cannot be reported")
     if dataset.get("cpi.csv").empty:
         warnings.append("Nominal TRY analysis only: no inflation-adjusted preservation claim")
     real_metrics = None
@@ -111,7 +116,7 @@ def run_experiment(dataset, protocol, allow_synthetic=False, progress=None):
         "protocol": protocol.to_dict(), "actual_test_start": start,
         "actual_test_end": scores.date.max(), "metrics": metrics,
         "forecast_validation": forecast_metrics(scores), "real_return": real_metrics,
-        "factor_models": factor_models(tests["adaptive_ml"].daily, factors),
+        "factor_models": factor_models(tests["adaptive_ml"].daily, factors, market_factors, ff3_factors),
         "panel_model": panel_model(scores), "warnings": warnings,
         "research_claim_status": "EMPIRICAL_RESULTS_REQUIRE_ACADEMIC_REVIEW" if is_real else "SOFTWARE_TEST_ONLY_NOT_EMPIRICAL_EVIDENCE",
         "source_review_note": "Input reviewed status is declared by the supplier, not authenticated by this software",

@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - name: Install pinned runtime and independent verification dependencies
-        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt -r requirements-acquisition.txt
       - name: Compile source
         run: python -m compileall -q ieai app.py tests
       - name: Research and Streamlit tests

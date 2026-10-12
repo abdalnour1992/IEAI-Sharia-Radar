@@ -1,0 +1,54 @@
+name: Acquire and verify actual official research sources
+on:
+  workflow_dispatch:
+  push:
+    branches: ['research/**']
+    paths: ['ieai/official.py', 'config/official_sources.json', '.github/workflows/official-sources.yml']
+permissions:
+  contents: read
+jobs:
+  official_sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install acquisition dependencies
+        run: python -m pip install numpy==2.3.5 pandas==2.2.3 -r requirements-acquisition.txt
+      - name: Acquire public source bytes and report actual coverage
+        run: python -m ieai.cli fetch-official --output outputs/official-sources
+      - name: Verify hashes, calendar checks and table extraction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          import json
+          import pandas as pd
+          root = Path('outputs/official-sources')
+          report = json.loads((root/'acquisition_report.json').read_text())
+          for name, expected in report['sha256'].items():
+              assert sha256((root/name).read_bytes()).hexdigest() == expected, name
+          assert report['total_return_benchmarks_aligned']
+          assert report['market_controls']['rows'] == report['index_coverage']['XK100']['rows']
+          assert len(report['market_controls']['independent_calendar_spot_checks']) == 2
+          assert len(report['membership_documents']) == 8
+          assert all(d['status'] == 'change_candidates_require_review' for d in report['membership_documents'])
+          candidates = pd.read_csv(root/'membership_change_candidates.csv')
+          assert candidates.review_status.eq('unreviewed').all()
+          assert not report['research_dataset_complete']
+          print(json.dumps({'index_coverage': report['index_coverage'],
+                            'market_controls': report['market_controls'],
+                            'membership_notice_count': report['membership_notice_count'],
+                            'change_candidates': len(candidates), 'sha256': report['sha256'],
+                            'blocking_gaps': report['blocking_gaps']}, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: actual-official-sources-with-unreviewed-membership-and-explicit-gaps
+          path: outputs/official-sources
+          if-no-files-found: warn
+          retention-days: 60

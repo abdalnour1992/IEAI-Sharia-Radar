@@ -1,0 +1,85 @@
+{
+  "source_catalog_version": "2026-10-12",
+  "membership_documents": [
+    {
+      "source_id": "participation_changes_20250926",
+      "published_date": "2025-09-26",
+      "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1493516",
+      "url": "https://www.kap.org.tr/tr/api/file/download/4028328d992f6f660199869828ab3b2c",
+      "period_start": "2025-10-01",
+      "period_end": "2026-04-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20250425",
+      "published_date": "2025-04-25",
+      "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1429792",
+      "url": "https://www.kap.org.tr/tr/api/file/download/4028328d96289e8c01966db1ef533000",
+      "period_start": "2025-05-01",
+      "period_end": "2025-09-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20241127",
+      "published_date": "2024-11-27",
+      "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1360880",
+      "url": "https://www.kap.org.tr/tr/api/file/download/4028328d930ceaeb01936ce9b5d24a1e",
+      "period_start": "2024-12-01",
+      "period_end": "2025-04-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20240626",
+      "published_date": "2024-06-26",
+      "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1302173",
+      "url": "https://www.kap.org.tr/tr/api/file/download/4028328d90137b630190545328035fb7",
+      "period_start": "2024-07-01",
+      "period_end": "2024-11-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20230927",
+      "published_date": "2023-09-27",
+      "announcement_url": "https://www.kap.org.tr/tr/Bildirim/1197692",
+      "url": "https://www.kap.org.tr/tr/api/file/download/4028328d8a99cc91018ad6c23248772a",
+      "period_start": "2023-10-01",
+      "period_end": "2024-04-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20230426",
+      "published_date": "2023-04-26",
+      "announcement_url": "https://www.borsaistanbul.com/duyuru/13067/01052023-30092023-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+      "url": "https://www.borsaistanbul.com/files/bist-katilimendeksleri-01052023-30092023-donemi-degisiklikleri.pdf",
+      "period_start": "2023-05-01",
+      "period_end": "2023-09-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20220927",
+      "published_date": "2022-09-27",
+      "announcement_url": "https://www.borsaistanbul.com/duyuru/14440/01102022-30042023-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+      "url": "https://www.borsaistanbul.com/files/bist-katilim-endeksleri-donemsel-degisiklikler.pdf",
+      "period_start": "2022-10-01",
+      "period_end": "2023-04-30",
+      "review_status": "unreviewed"
+    },
+    {
+      "source_id": "participation_changes_20220425",
+      "published_date": "2022-04-25",
+      "announcement_url": "https://www.borsaistanbul.com/duyuru/12885/01052022-30092022-donemi-icin-bist-katilim-endeksleri-kapsaminda-yer-alacak-paylarda-degisiklik-yapilmistir",
+      "url": "https://www.borsaistanbul.com/files/katilimendeksi_DuyuruEki_tr.pdf",
+      "period_start": "2022-05-01",
+      "period_end": "2022-09-30",
+      "review_status": "unreviewed"
+    }
+  ],
+  "coverage_claim": "Discovery only; no complete initial snapshot or exceptional-change review claimed",
+  "calendar_exceptions": [
+    {
+      "publication": "2024-02-15",
+      "url": "https://www.borsaistanbul.com/duyuru/14641/bist-katilim-ve-bist-kobi-sanayi-endeksleri-donemsel-calismalarinin-ertelenmesi-hakkinda-duyuru",
+      "note": "2024 reviews postponed; actual new periods July-November and December-April"
+    }
+  ]
+}

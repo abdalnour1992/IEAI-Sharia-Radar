@@ -19,7 +19,7 @@ def fixture_files(issuers=8):
         prices.append(pd.DataFrame({"date": dates, "symbol": symbol, "close": wealth,
             "total_return_close": wealth, "volume": volume, "value_traded_try": volume*wealth,
             "is_tradable": True}))
-        shares.append({"symbol": symbol, "available_at": "2020-12-31", "shares_outstanding": 1000000,
+        shares.append({"symbol": symbol, "available_at": "2020-12-31", "effective_from": "2020-12-31", "shares_outstanding": 1000000,
                        "source_url": "https://example.org/SYNTHETIC-software-test"})
         eligibility.append({"symbol": symbol, "available_at": "2021-01-01", "effective_from": "2021-01-01",
             "effective_to": "2023-12-31", "eligible": True, "rule_set": "SYNTHETIC-test-only",

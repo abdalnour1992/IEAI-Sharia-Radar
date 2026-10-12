@@ -7,7 +7,28 @@ def latest_asof(frame, symbol, date):
     if frame.empty:
         return None
     rows = frame[(frame.symbol == symbol) & (frame.available_at <= date)]
-    return None if rows.empty else rows.sort_values("available_at").iloc[-1]
+    if "effective_from" in rows:
+        rows = rows[rows.effective_from <= date]
+        order = ["effective_from", "available_at"]
+    elif "period_end" in rows:
+        order = ["period_end", "available_at"]
+    else:
+        order = ["available_at"]
+    return None if rows.empty else rows.sort_values(order).iloc[-1]
+
+
+def effective_fact_stream(frame, effective_field):
+    """Known AND effective facts; a late old report cannot erase newer facts."""
+    frame = frame.copy()
+    frame["usable_at"] = frame[["available_at", effective_field]].max(axis=1)
+    if frame.empty:
+        return frame
+    rows, latest_effective = [], pd.Timestamp.min
+    for _, row in frame.sort_values(["usable_at", effective_field, "available_at"]).iterrows():
+        if row[effective_field] >= latest_effective:
+            rows.append(row)
+            latest_effective = row[effective_field]
+    return pd.DataFrame(rows).drop_duplicates("usable_at", keep="last").sort_values("usable_at")
 
 
 def screen_at(dataset, symbols, date, protocol):
@@ -88,18 +109,21 @@ def screening_panel(dataset, protocol):
             left.loc[mask, "rule_set"] = fact.rule_set
             left.loc[mask, "facts_available_at"] = fact.available_at
         shares = dataset.get("shares.csv")
-        shares = shares[shares.symbol == symbol][["available_at", "shares_outstanding"]].sort_values("available_at")
-        left = pd.merge_asof(left, shares, left_on="date", right_on="available_at", direction="backward")
+        shares = shares[shares.symbol == symbol][["available_at", "effective_from", "shares_outstanding"]]
+        shares = effective_fact_stream(shares, "effective_from")
+        left = pd.merge_asof(left, shares, left_on="date", right_on="usable_at", direction="backward")
+        left = left.drop(columns=["usable_at", "effective_from"])
         left = left.rename(columns={"available_at": "shares_available_at"})
         left["market_cap"] = left.close * left.shares_outstanding
         left["debt_assets"] = np.nan
         left["debt_market_cap"] = np.nan
         if protocol.screening_profile == "research_30":
             financials = dataset.get("financials.csv")
-            financials = financials[financials.symbol == symbol].drop(columns="symbol").sort_values("available_at")
+            financials = effective_fact_stream(financials[financials.symbol == symbol].drop(columns="symbol"), "period_end")
             financials = financials.rename(columns={"source_url": "financial_source_url",
                                                     "available_at": "financial_available_at"})
-            left = pd.merge_asof(left, financials, left_on="date", right_on="financial_available_at", direction="backward")
+            left = pd.merge_asof(left, financials, left_on="date", right_on="usable_at", direction="backward")
+            left = left.drop(columns="usable_at")
             original = left.eligible.copy()
             missing = left.financial_available_at.isna()
             stale = (left.date - left.period_end).dt.days > protocol.financial_max_age_days
