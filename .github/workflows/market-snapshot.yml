@@ -1,0 +1,42 @@
+name: Acquire exploratory historical market data
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: 'Explicit Yahoo symbols, comma separated; no eligibility inferred'
+        default: 'THYAO.IS,BIMAS.IS,TUPRS.IS,ASELS.IS,EREGL.IS'
+        required: true
+      start:
+        default: '2021-01-01'
+        required: true
+      end:
+        default: '2025-12-31'
+        required: true
+  push:
+    branches: ['research/**']
+    paths: ['ieai/yahoo.py', '.github/workflows/market-snapshot.yml']
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - name: Retrieve actual historical data and record provider failures
+        env:
+          SNAPSHOT_SYMBOLS: ${{ inputs.symbols || 'THYAO.IS,BIMAS.IS,TUPRS.IS,ASELS.IS,EREGL.IS' }}
+          SNAPSHOT_START: ${{ inputs.start || '2021-01-01' }}
+          SNAPSHOT_END: ${{ inputs.end || '2025-12-31' }}
+        run: python -m ieai.cli fetch-market --symbols "$SNAPSHOT_SYMBOLS" --start "$SNAPSHOT_START" --end "$SNAPSHOT_END" --output outputs/market-snapshot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-market-snapshot-unreviewed-incomplete-research-inputs
+          path: outputs/market-snapshot
+          if-no-files-found: warn

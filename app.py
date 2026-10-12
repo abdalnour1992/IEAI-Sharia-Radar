@@ -1,404 +1,142 @@
-import streamlit as st
-import yfinance as yf
+"""Results are produced only by the actual research engine after a user action."""
+from dataclasses import replace
+from hashlib import sha256
+from io import BytesIO
+import json
+from zipfile import ZIP_DEFLATED, ZipFile
 import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import datetime
-import streamlit.components.v1 as components
+import streamlit as st
+from ieai.config import Protocol
+from ieai.data import Dataset, DataError, SCHEMAS
+from ieai.experiment import run_experiment, result_zip
+from ieai.learning import TrainingUnavailable
 
-# ==========================================
-# 1. قاعدة البيانات الحقيقية لأسماء الشركات 
-# ==========================================
-REAL_COMPANY_NAMES = {
-    "THYAO": "Türk Hava Yolları A.O.",
-    "BIMAS": "BİM Birleşik Mağazalar A.Ş.",
-    "TUPRS": "Tüpraş Türkiye Petrol Rafinerileri A.Ş.",
-    "ASELS": "Aselsan Elektronik Sanayi ve Ticaret A.Ş.",
-    "HEKTS": "Hektaş Ticaret T.A.Ş.",
-    "AKBNK": "Akbank T.A.Ş.",
-    "GARAN": "Türkiye Garanti Bankası A.Ş.",
-    "KCHOL": "Koç Holding A.Ş.",
-    "SAHOL": "Hacı Ömer Sabancı Holding A.Ş.",
-    "EREGL": "Ereğli Demir ve Çelik Fabrikaları T.A.Ş.",
-    "SASA": "Sasa Polyester Sanayi A.Ş.",
-    "FROTO": "Ford Otomotiv Sanayi A.Ş.",
-    "TCELL": "Turkcell İletişim Hizmetleri A.Ş.",
-    "ENKAI": "Enka İnşaat ve Sanayi A.Ş.",
-    "SISE": "Türkiye Şişe ve Cam Fabrikaları A.Ş."
+st.set_page_config(page_title="IEAI Research Laboratory", layout="wide")
+TEXT = {
+    "ar": ["العربية", "مختبر حفظ المال والاختبار الرجعي", "نموذج بحثي يومي وفق مقترح الماجستير",
+           "ارفع حزمة البيانات الموثقة ZIP", "تشغيل التجربة", "النتائج", "الأهلية والمؤشرات", "سجل التدريب والتنفيذ", "التقرير والمخرجات",
+           "لا توجد نتائج قبل توفير البيانات وتشغيل التجربة. لا تُفترض الأهلية من أسماء الأسهم.",
+           "تنزيل قوالب المدخلات", "إعدادات البروتوكول", "الأهلية الموثقة فقط", "الأهلية الموثقة مع حد ديون بحثي 30%",
+           "تاريخ بدء التقييم", "بداية الاختبار النهائي المجمد", "نهاية الدراسة", "نسبة الخسارة المستهدفة", "أفق الخسارة بالجلسات",
+           "أقصى وزن للسهم", "عمولة بالنقاط الأساسية", "انزلاق سعري بالنقاط الأساسية", "تنزيل حزمة النتائج",
+           "جميع القيم ناتجة من البيانات والحسابات. تكاليف التنفيذ وإعدادات المخاطر افتراضات معلنة.",
+           "سجل الأحداث الفعلية", "حدث", "المدخلات غير مكتملة أو غير صالحة", "بيانات اختبار مصطنعة لا تصلح دليلًا بحثيًا",
+           "لم تُراجع المصادر استقلالًا وفق بيان المدخلات", "الأوزان", "الصفقات", "لا تمثل الدرجة حكمًا شرعيًا أو ضمانًا لحفظ المال",
+           "اختيار اللغة", "تعرض يتكيف مع متوسط الدرجة", "تعرض كامل مع حدود التركيز", "سياسة التعرض",
+           "تم حساب التجربة", "تاريخ بداية الدراسة", "قيمة رأس المال بالليرة التركية"],
+    "en": ["English", "Wealth Preservation Research Laboratory", "Daily research engine for the master's proposal",
+           "Upload documented dataset ZIP", "Run experiment", "Results", "Eligibility and features", "Training and execution audit", "Report and exports",
+           "No results before data and an actual run. Eligibility is never inferred from ticker names.",
+           "Download input templates", "Protocol settings", "Historical attestation only", "Attestation plus research 30% debt limit",
+           "Evaluation start", "Frozen final holdout start", "Study end", "Target loss threshold", "Loss horizon in sessions",
+           "Maximum stock weight", "Commission in bps", "Slippage in bps", "Download results package",
+           "Values come from input observations and calculations. Costs and risk settings are disclosed assumptions.",
+           "Actual processing events", "Event", "Incomplete or invalid inputs", "Synthetic software-test data is not empirical evidence",
+           "Sources have not been independently reviewed according to input metadata", "Positions", "Trades", "The score is not a religious verdict or a capital guarantee",
+           "Language", "Exposure follows mean score", "Full exposure with concentration caps", "Exposure policy",
+           "Experiment calculated", "Study start", "Initial capital in TRY"],
+    "tr": ["Türkçe", "Malın Korunması Araştırma Laboratuvarı", "Yüksek lisans önerisi için günlük araştırma motoru",
+           "Belgelenmiş veri ZIP dosyasını yükleyin", "Deneyi çalıştır", "Sonuçlar", "Uygunluk ve göstergeler", "Eğitim ve işlem denetimi", "Rapor ve dışa aktarma",
+           "Veri ve deney olmadan sonuç gösterilmez. Uygunluk sembol adlarından çıkarılmaz.",
+           "Girdi şablonlarını indir", "Protokol ayarları", "Tarihsel uygunluk beyanı", "Beyan ve araştırma amaçlı %30 borç sınırı",
+           "Değerlendirme başlangıcı", "Dondurulmuş son test başlangıcı", "Çalışma sonu", "Hedef kayıp eşiği", "Kayıp ufku seans sayısı",
+           "Azami hisse ağırlığı", "Komisyon baz puan", "Kayma baz puan", "Sonuç paketini indir",
+           "Değerler verilerden hesaplanır. İşlem maliyetleri ve risk ayarları açıklanan varsayımlardır.",
+           "Gerçek işlem olayları", "Olay", "Eksik veya geçersiz girdiler", "Sentetik test verisi ampirik kanıt değildir",
+           "Girdi beyanına göre kaynaklar bağımsız incelenmemiştir", "Pozisyonlar", "İşlemler", "Skor fetva veya sermaye garantisi değildir",
+           "Dil", "Ortalama skora bağlı riskli varlık payı", "Yoğunlaşma sınırlarıyla tam yatırım", "Riskli varlık payı politikası",
+           "Deney hesaplandı", "Çalışma başlangıcı", "TRY cinsinden başlangıç sermayesi"],
 }
+language = st.sidebar.selectbox("Language / اللغة / Dil", ["ar", "en", "tr"], format_func=lambda x: TEXT[x][0], key="language")
+t = TEXT[language]
+if language == "ar":
+    st.markdown("<style>h1,h2,h3,p {direction:rtl;text-align:right}</style>", unsafe_allow_html=True)
+st.title(t[1])
+st.caption(t[2])
+st.info(t[9])
+st.caption(t[31])
 
-# ==========================================
-# 2. قاموس اللغات الشامل
-# ==========================================
-LANGS = {
-    "العربية": {
-        "rtl": True,
-        "title": "🌙 منصة الذكاء الاصطناعي الأخلاقي (IEAI)",
-        "side_hdr": "🎛️ مركز التحكم والتاريخ",
-        "lang_sel": "🌐 لغة المنصة / Dil Seçimi / Language:",
-        "date_sel": "اختر الفترة الزمنية (من - إلى):",
-        "period_sel": "اختر النطاق الزمني للتحليل الدوري:",
-        "p_opts": ["ربع سنوي (Quarterly)", "نصف سنوي (Semi-Annually)", "سنوي (Annually)"],
-        "period_info": "📅 فترة التداول الحالية وفحص الامتثال: من `{}` إلى `{}`",
-        "radar_kat": "🌙 الرادار التشاركي (BIST Katılım 100)",
-        "radar_trad": "🏢 الرادار التقليدي (BIST 100)",
-        "cols": ["الرمز", "القطاع", "التداول", "الحالة", "النتيجة"],
-        "sec_pure": ["طيران وخدمات", "تجزئة وغذاء", "طاقة وموارد", "دفاع وتكنولوجيا", "زراعة وأمن"],
-        "sec_bad": ["بنك تقليدي (ربا)", "مشروبات كحولية", "تأمين تجاري", "قابضة (ديون عالية)"],
-        "res_pure": ["نماء ودعم البنية", "تدوير مال حلال", "استثمار آمن", "حفظ النفس", "تأمين الحاجات"],
-        "res_bad": ["بطلان العقد (ربا)", "هدم العقل", "مخاطر غرر", "احتكار وتلاعب"],
-        "status_pure": "نقي 100%", "status_warn": "مراقبة سيولة", "status_bad": "مستبعد (حرام)",
-        "m_pure": "الشركات النقية", "m_out": "من أصل 100", "m_vol_kat": "حجم التداول", "m_desc_kat": "سيولة تشاركية",
-        "m_bad": "الشركات المستبعدة", "m_fail": "رسوب في الفلتر", "m_vol_trad": "حجم التداول", "m_desc_trad": "سيولة عامة",
-        "recom_title": "💡 توصيات الذكاء الاصطناعي للمستثمر (أفضل الفرص المستخلصة من كافة الأسواق)",
-        "recom_cols": ["الرمز", "الاسم الأصلي المسجل", "المؤشر", "القطاع", "سنة الإدراج", "التصنيف", "القيمة السوقية", "نسبة الديون", "سعر الشراء", "سعر البيع", "الربح اللحظي (%)"],
-        "idx_kat": "تشاركي (Katılım)", "idx_trad": "تقليدي (BIST)",
-        "cls_expert": "خبيرة / قيادية (Blue-Chip)", "cls_mid": "نمو / متوسطة (Mid-Cap)", "cls_startup": "ناشئة / صاعدة (Startup)", "safe": "آمن شرعياً",
-        "chart_title": "📈 الأداء التراكمي: من {} إلى {}",
-        "leg1": "المحفظة الأخلاقية", "leg2": "السوق التشاركي", "leg3": "السوق التقليدي",
-        "tbl_title": "📊 أداء الأرباح والخسائر للقطاعات ({})",
-        "t_cols": ["القطاع", "النجاح", "الفشل", "الإيرادات", "الخسائر"],
-        "r1": "الشركات التشاركية", "r2": "الشركات التقليدية",
-        "rep_title": "📋 التقرير المالي والامتثالي التنفيذي",
-        "rep_body": "<h4>📄 تقرير الاستحقاق والأداء</h4><p><b>النطاق:</b> {} إلى {} | <b>الوتيرة:</b> {}</p><hr><p><b>1. الفحص الشرعي:</b> عزل <b>66% من التقليدي</b> للربا، ونجاح تام للتشاركي.</p><p><b>2. الكفاءة المالية:</b> نجاح التشاركي <b>{}</b> مقابل التقليدي <b>{}</b>.</p><p><b>3. إدارة الخسائر:</b> خسائر المحفظة النقية <b>{}</b> مقابل <b>{}</b> للتقليدي.</p><p style='color:#00ff00;'>📊 التوصية: الاستمرار بنموذج الأوزان المتكيفة لحفظ المال.</p>",
-        "term_title": "⚙️ سجل عمليات الرادار والمحرك اللحظي (Terminal)",
-        
-        "uni_name": "جامعة مرمرة - إسطنبول",
-        "inst_name": "معهد الاقتصاد الإسلامي والتمويل",
-        "thesis_title": "« مقصد حفظ المال في التمويل الإسلامي: تطوير نموذج خوارزمي متكيف قائم على الذكاء الاصطناعي وتطبيقه على سوق الأسهم التركي »",
-        "stu_lbl": "إعداد الطالب:",
-        "stu_name": "عبدالنور ناصر الإفرنجي",
-        "sup_lbl": "إشراف:",
-        "sup_name": "أ.د. زين العابدين حياة",
-        "year": "2026"
-    },
-    "Türkçe": {
-        "rtl": False,
-        "title": "🌙 Etik Yapay Zeka Platformu (IEAI)",
-        "side_hdr": "🎛️ Kontrol Merkezi ve Tarih",
-        "lang_sel": "🌐 Dil Seçimi:",
-        "date_sel": "İşlem Süresini Seçin:",
-        "period_sel": "Periyodik Analiz Dönemi:",
-        "p_opts": ["Çeyreklik (Quarterly)", "Yarı Yıllık (Semi-Annually)", "Yıllık (Annually)"],
-        "period_info": "📅 Mevcut İşlem ve Uyumluluk Kontrolü: `{}` - `{}`",
-        "radar_kat": "🌙 Katılım Radarı (BIST Katılım 100)",
-        "radar_trad": "🏢 Geleneksel Radar (BIST 100)",
-        "cols": ["Sembol", "Sektör", "Hacim", "Durum", "Sonuç"],
-        "sec_pure": ["Havacılık & Hizmet", "Perakende & Gıda", "Enerji & Kaynak", "Savunma Teknoloji", "Tarım & Güvenlik"],
-        "sec_bad": ["Geleneksel Banka", "Alkollü İçecek", "Geleneksel Sigorta", "Holding (Yüksek Borç)"],
-        "res_pure": ["Helal Büyüme", "Helal Sermaye", "Güvenli Yatırım", "Toplumsal Fayda", "Temel İhtiyaç"],
-        "res_bad": ["Faiz (Haram)", "Zararlı Üretim", "Yüksek Risk", "Piyasa Manipülasyonu"],
-        "status_pure": "%100 Helal", "status_warn": "Likidite Uyarısı", "status_bad": "Reddedildi (Haram)",
-        "m_pure": "Helal Şirketler", "m_out": "100 üzerinden", "m_vol_kat": "İşlem Hacmi", "m_desc_kat": "Katılım Likiditesi",
-        "m_bad": "Reddedilen Şirketler", "m_fail": "Filtreye Takıldı", "m_vol_trad": "İşlem Hacmi", "m_desc_trad": "Genel Likidite",
-        "recom_title": "💡 Yapay Zeka Önerileri (Tüm Piyasalardan Çıkarılan Helal Fırsatlar)",
-        "recom_cols": ["Sembol", "Resmi Şirket Unvanı", "Endeks", "Sektör", "Kuruluş", "Sınıflandırma", "Piyasa Değeri", "Borç Oranı", "Alış (Bid)", "Satış (Ask)", "Anlık Kar (%)"],
-        "idx_kat": "Katılım Endeksi", "idx_trad": "Geleneksel (BIST)",
-        "cls_expert": "Köklü / Öncü (Blue-Chip)", "cls_mid": "Büyüme (Mid-Cap)", "cls_startup": "Girişim (Startup)", "safe": "Helal / Güvenli",
-        "chart_title": "📈 Kümülatif Performans: {} - {}",
-        "leg1": "Etik Portföy (IEACS)", "leg2": "Katılım Piyasası", "leg3": "Geleneksel Piyasa",
-        "tbl_title": "📊 Sektör Bazlı Kar/Zarar Performansı ({})",
-        "t_cols": ["Sektör", "Başarı Oranı", "Hata/Risk", "Gelirler", "Zararlar"],
-        "r1": "Katılım Şirketleri", "r2": "Geleneksel Şirketler",
-        "rep_title": "📋 Yönetici Finans ve Uyumluluk Raporu",
-        "rep_body": "<h4>📄 Performans Değerlendirmesi</h4><p><b>Dönem:</b> {} - {} | <b>Analiz:</b> {}</p><hr><p><b>1. Şeri İnceleme:</b> Geleneksel endeksin <b>%66'sı</b> faiz nedeniyle elendi.</p><p><b>2. Finansal Verimlilik:</b> Katılım başarı oranı <b>{}</b>, Geleneksel <b>{}</b>.</p><p><b>3. Zarar Yönetimi:</b> Katılım zararı <b>{}</b>, Geleneksel zararı <b>{}</b>.</p><p style='color:#00ff00;'>📊 Öneri: AEWS modeline devam edilerek sermaye korunmalıdır.</p>",
-        "term_title": "⚙️ AEWS Canlı Terminal (Live Terminal)",
-        
-        "uni_name": "Marmara Üniversitesi - İstanbul",
-        "inst_name": "İslam Ekonomisi ve Finansı Enstitüsü",
-        "thesis_title": "« İslami Finansta Servetin Korunması (Hıfz-ı Mal) Amacı: Yapay Zeka Tabanlı Adaptif Algoritmik Model Geliştirilmesi ve Türk Hisse Senedi Piyasasına Uygulanması »",
-        "stu_lbl": "Hazırlayan:",
-        "stu_name": "Abdulnour Nasser Al-Franji",
-        "sup_lbl": "Danışman:",
-        "sup_name": "Prof. Dr. Zain Al-Abidin Hayat",
-        "year": "2026"
-    },
-    "English": {
-        "rtl": False,
-        "title": "🌙 Ethical AI Platform (IEAI)",
-        "side_hdr": "🎛️ Control Center & History",
-        "lang_sel": "🌐 Select Language:",
-        "date_sel": "Select Trading Period:",
-        "period_sel": "Select Periodicity:",
-        "p_opts": ["Quarterly", "Semi-Annually", "Annually"],
-        "period_info": "📅 Current Trading & Compliance: `{}` to `{}`",
-        "radar_kat": "🌙 Islamic Radar (BIST Katılım 100)",
-        "radar_trad": "🏢 Traditional Radar (BIST 100)",
-        "cols": ["Symbol", "Sector", "Volume", "Status", "Result"],
-        "sec_pure": ["Aviation & Services", "Retail & Food", "Energy", "Defense Tech", "Agriculture"],
-        "sec_bad": ["Traditional Bank", "Alcoholic Beverages", "Commercial Insurance", "Holding (High Debt)"],
-        "res_pure": ["Halal Growth", "Halal Capital", "Safe Investment", "Social Benefit", "Basic Needs"],
-        "res_bad": ["Usury/Riba (Haram)", "Harmful Production", "High Risk", "Market Manipulation"],
-        "status_pure": "100% Pure", "status_warn": "Liquidity Alert", "status_bad": "Rejected (Haram)",
-        "m_pure": "Pure Companies", "m_out": "out of 100", "m_vol_kat": "Trading Volume", "m_desc_kat": "Islamic Liquidity",
-        "m_bad": "Rejected Companies", "m_fail": "Failed Filter", "m_vol_trad": "Trading Volume", "m_desc_trad": "General Liquidity",
-        "recom_title": "💡 AI Robo-Advisor Recommendations (Top Halal Picks Across All Markets)",
-        "recom_cols": ["Symbol", "Official Registered Name", "Source Index", "Sector", "Listing Year", "Classification", "Market Cap", "Debt Ratio", "Buy (Bid)", "Sell (Ask)", "Live Profit (%)"],
-        "idx_kat": "Islamic (Katılım)", "idx_trad": "Traditional (BIST)",
-        "cls_expert": "Established (Blue-Chip)", "cls_mid": "Growth (Mid-Cap)", "cls_startup": "Startup (Small-Cap)", "safe": "Safe/Compliant",
-        "chart_title": "📈 Cumulative Performance: {} to {}",
-        "leg1": "Ethical Portfolio", "leg2": "Islamic Market", "leg3": "Traditional Market",
-        "tbl_title": "📊 Sector Profit & Loss Performance ({})",
-        "t_cols": ["Sector", "Success Rate", "Failure/Risk", "Revenues", "Losses"],
-        "r1": "Islamic Companies", "r2": "Traditional Companies",
-        "rep_title": "📋 Executive Financial & Compliance Report",
-        "rep_body": "<h4>📄 Performance Evaluation</h4><p><b>Period:</b> {} to {} | <b>Frequency:</b> {}</p><hr><p><b>1. Sharia Screening:</b> <b>66%</b> of traditional index dropped due to Riba.</p><p><b>2. Financial Efficiency:</b> Islamic success <b>{}</b> vs Traditional <b>{}</b>.</p><p><b>3. Loss Management:</b> Islamic loss <b>{}</b> vs Traditional loss <b>{}</b>.</p><p style='color:#00ff00;'>📊 Recommendation: Continue AEWS dynamic weights to preserve capital.</p>",
-        "term_title": "⚙️ AEWS Live Terminal",
-        
-        "uni_name": "Marmara University - Istanbul",
-        "inst_name": "Institute of Islamic Economics and Finance",
-        "thesis_title": "« The Objective of Wealth Preservation in Islamic Finance: Development of an AI-Based Adaptive Algorithmic Model and its Application to the Turkish Stock Market »",
-        "stu_lbl": "Student:",
-        "stu_name": "Abdulnour Nasser Al-Franji",
-        "sup_lbl": "Supervisor:",
-        "sup_name": "Prof. Dr. Zain Al-Abidin Hayat",
-        "year": "2026"
-    }
-}
+def templates_zip():
+    output = BytesIO()
+    manifest = {"dataset_id": "replace-with-reviewed-dataset-id", "dataset_kind": "real", "audit_status": "unreviewed",
+                "currency": "TRY", "universe": "document-historical-universe-selection", "price_convention": "document-prices-shares-and-corporate-actions",
+                "sources": [{"file": "prices.csv", "provider": "REPLACE", "url": "REPLACE", "retrieved_at": "REPLACE"}]}
+    with ZipFile(output, "w", ZIP_DEFLATED) as archive:
+        for name, fields in SCHEMAS.items():
+            archive.writestr(name, ",".join(fields) + "\n")
+        archive.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))
+    return output.getvalue()
 
-st.set_page_config(page_title="IEAI Command Center", layout="wide")
-
-# ==========================================
-# 3. إعدادات اللغة و CSS 
-# ==========================================
-lang_choice = st.sidebar.selectbox("🌐 لغة المنصة / Dil Seçimi / Language", ["العربية", "Türkçe", "English"])
-t = LANGS[lang_choice]
-dir_mode = "rtl" if t["rtl"] else "ltr"
-align_mode = "right" if t["rtl"] else "left"
-
-dynamic_css = f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-.stApp, .stMarkdown, h1, h2, h3, h4, h5, h6, td, th {{ font-family: 'Tajawal', sans-serif !important; direction: {dir_mode}; text-align: {align_mode}; }}
-div[data-testid="stMetricValue"], div[data-testid="stMetricDelta"] {{ direction: ltr; text-align: {align_mode}; }}
-.academic-badge {{ text-align: center !important; padding: 15px; border: 1px solid #444; border-radius: 10px; margin-bottom: 25px; background-color: #1a1a1a; box-shadow: 0 4px 6px rgba(0,255,0,0.1); }}
-.academic-badge img {{ display: block; margin: 0 auto 15px auto !important; width: 110px; }}
-.academic-badge h3, .academic-badge h4, .academic-badge p {{ text-align: center !important; }}
-.academic-box-inner {{ background-color: #2a2a2a; padding: 10px; border-radius: 5px; margin: 0 auto 15px auto; display: block; width: 90%; text-align: center !important; }}
-.table-container {{ max-height: 350px; overflow-y: auto; overflow-x: auto; white-space: nowrap; border: 1px solid #444; margin-bottom: 20px; }}
-table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; }}
-th {{ background-color: #1a1a1a; color: #00ff00; padding: 10px; position: sticky; top: 0; text-align: {align_mode}; border-bottom: 2px solid #00ff00; }}
-td {{ padding: 8px 12px; border-bottom: 1px solid #333; color: #eee; text-align: {align_mode}; }}
-.p-pure {{ color: #00ff00; }} .p-warn {{ color: #ffa500; }} .p-bad {{ color: #ff0000; }}
-.report-box {{ background-color: #1e1e1e; padding: 20px; border-left: 5px solid #00ff00; border-right: 5px solid #00ff00; border-radius: 5px; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
-.terminal {{ background-color: #0c0c0c; color: #00ff00; padding: 15px; font-family: monospace !important; direction: ltr; text-align: left; height: 150px; overflow-y: auto;}}
-#MainMenu, footer {{visibility: hidden;}}
-.stButton>button {{ width: 100%; background-color: #00ff00; color: #000; font-weight: bold; border-radius: 8px; }}
-.stButton>button:hover {{ background-color: #00cc00; color: #fff; }}
-</style>
-"""
-st.markdown(dynamic_css, unsafe_allow_html=True)
-
-# ==========================================
-# 4. الهوية الأكاديمية
-# ==========================================
-academic_badge_html = f"""
-<div class="academic-badge">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Marmara_University_logo.svg/200px-Marmara_University_logo.svg.png" alt="Marmara University Logo">
-    <h3 style="color: #ffffff; margin: 0 0 5px 0; font-size: 16px;">{t['uni_name']}</h3>
-    <h4 style="color: #00ff00; margin: 0 0 10px 0; font-size: 14px;">{t['inst_name']}</h4>
-    <div class="academic-box-inner">
-        <p style="color: #eeeeee; font-size: 13px; font-weight: bold; margin: 0; line-height: 1.6;">{t['thesis_title']}</p>
-    </div>
-    <p style="color: #cccccc; font-size: 13px; margin: 5px 0;"><b>{t['stu_lbl']}</b><br>{t['stu_name']}</p>
-    <p style="color: #cccccc; font-size: 13px; margin: 5px 0;"><b>{t['sup_lbl']}</b><br>{t['sup_name']}</p>
-    <p style="color: #00ff00; font-size: 16px; margin: 10px 0 0 0; font-weight: bold;">{t['year']}</p>
-</div>
-"""
-st.sidebar.markdown(academic_badge_html, unsafe_allow_html=True)
-
-st.title(t["title"])
-st.markdown("---")
-
-# ==========================================
-# 5. مركز التحكم 
-# ==========================================
-st.sidebar.header(t["side_hdr"])
-date_range = st.sidebar.date_input(t["date_sel"], value=(datetime.date(2019, 1, 1), datetime.date(2026, 1, 1)), min_value=datetime.date(2019, 1, 1), max_value=datetime.date(2026, 12, 31))
-period_view = st.sidebar.selectbox(t["period_sel"], t["p_opts"])
-
-if len(date_range) == 2: start_date, end_date = date_range
-else: start_date, end_date = date_range[0], date_range[0]
-st.markdown(f"### " + t["period_info"].format(start_date, end_date))
-st.markdown("---")
-
-# ==========================================
-# 6. بناء الرادار بالأسماء الحقيقية
-# ==========================================
-base_tickers = list(REAL_COMPANY_NAMES.keys())
-
-kat_data, bist_data = [], []
-for i in range(1, 101):
-    base_sym = base_tickers[i % len(base_tickers)]
-    sym = f"{base_sym}_{i}"
-    sec_idx = i % len(t["sec_pure"])
-    status = f"<span class='p-pure'>{t['status_pure']}</span>" if i % 12 != 0 else f"<span class='p-warn'>{t['status_warn']}</span>"
-    kat_data.append([sym, t["sec_pure"][sec_idx], f"{10 + (i * 2) % 130}.4M", status, t["res_pure"][sec_idx]])
-
-for i in range(1, 101):
-    base_sym = base_tickers[::-1][i % len(base_tickers)]
-    sym = f"{base_sym}_{i}"
-    is_haram = i % 3 != 0
-    if is_haram:
-        sec_idx, status = i % len(t["sec_bad"]), f"<span class='p-bad'>{t['status_bad']}</span>"
-        res, sec = t["res_bad"][sec_idx], t["sec_bad"][sec_idx]
-    else:
-        sec_idx, status = i % len(t["sec_pure"]), f"<span class='p-pure'>{t['status_pure']}</span>"
-        res, sec = t["res_pure"][sec_idx], t["sec_pure"][sec_idx]
-    bist_data.append([sym, sec, f"{15 + (i * 3) % 210}.1M", status, res])
-
-kat_df = pd.DataFrame(kat_data, columns=t["cols"])
-bist_df = pd.DataFrame(bist_data, columns=t["cols"])
-
-col_kat, col_bist = st.columns(2)
-with col_kat:
-    st.subheader(t["radar_kat"])
-    html_kat = '<div class="table-container">' + kat_df.to_html(index=False, escape=False) + '</div>'
-    st.markdown(html_kat, unsafe_allow_html=True)
-    m1, m2 = st.columns(2)
-    m1.metric(t["m_pure"], "91", t["m_out"])
-    m2.metric(t["m_vol_kat"], "₺ 26.4 B", t["m_desc_kat"])
-
-with col_bist:
-    st.subheader(t["radar_trad"])
-    html_bist = '<div class="table-container">' + bist_df.to_html(index=False, escape=False) + '</div>'
-    st.markdown(html_bist, unsafe_allow_html=True)
-    m3, m4 = st.columns(2)
-    m3.metric(t["m_bad"], "66", t["m_fail"], delta_color="inverse")
-    m4.metric(t["m_vol_trad"], "₺ 71.5 B", t["m_desc_trad"])
-
-st.markdown("---")
-
-# ==========================================
-# 7. قسم التوصيات الشامل
-# ==========================================
-st.subheader(t["recom_title"])
-recom_data = []
-all_companies = kat_data + bist_data 
-kat_symbols = [r[0] for r in kat_data]
-
-for row in all_companies:
-    if t["status_pure"] in row[3]: 
-        symbol_with_idx = row[0] 
-        base_sym = symbol_with_idx.split('_')[0] 
-        full_official_name = REAL_COMPANY_NAMES.get(base_sym, base_sym)
-        sector = row[1]
-        source_idx = t["idx_kat"] if symbol_with_idx in kat_symbols else t["idx_trad"]
-        listing_year = np.random.randint(1995, 2024)
-        mkt_cap = np.round(np.random.uniform(2.0, 85.0), 1)
-        if mkt_cap > 50: classification = t["cls_expert"]
-        elif mkt_cap > 15: classification = t["cls_mid"]
-        else: classification = t["cls_startup"]
-        debt_ratio = np.round(np.random.uniform(1.0, 29.9), 1)
-        debt_str = f"{debt_ratio}% ({t['safe']})"
-        base_price = np.round(np.random.uniform(20.0, 250.0), 2)
-        bid = np.round(base_price - np.random.uniform(0.05, 0.20), 2)
-        ask = np.round(base_price + np.random.uniform(0.05, 0.20), 2)
-        profit_pct = np.round(np.random.uniform(1.5, 12.5), 2)
-        recom_data.append([base_sym, full_official_name, source_idx, sector, listing_year, classification, f"₺ {mkt_cap} B", debt_str, f"₺ {bid:.2f}", f"₺ {ask:.2f}", profit_pct])
-
-recom_df = pd.DataFrame(recom_data, columns=t["recom_cols"])
-recom_df = recom_df.drop_duplicates(subset=[t["recom_cols"][0]])
-recom_df = recom_df.sort_values(by=t["recom_cols"][10], ascending=False).reset_index(drop=True)
-recom_df[t["recom_cols"][10]] = recom_df[t["recom_cols"][10]].apply(lambda x: f"<span style='color:#00ff00; font-weight:bold;'>+{x}%</span>")
-
-html_recom = '<div class="table-container" style="border-color: #00ff00;">' + recom_df.to_html(index=False, escape=False) + '</div>'
-st.markdown(html_recom, unsafe_allow_html=True)
-st.markdown("---")
-
-# ==========================================
-# 8. المخطط البياني التراكمي
-# ==========================================
-@st.cache_data(ttl=3600)
-def fetch_chart_data():
-    all_sym = ['THYAO.IS', 'TUPRS.IS', 'XU100.IS', 'XKTUM.IS']
-    d = yf.download(all_sym, start='2019-01-01', end='2026-12-31', auto_adjust=False, threads=False, progress=False)['Adj Close'].ffill()
-    r_bist, r_kat = d['XU100.IS'].pct_change().fillna(0), d['XKTUM.IS'].pct_change().fillna(0)
-    r_port = r_kat + np.random.normal(0.0006, 0.009, len(r_kat))
-    return d.index, (1+r_port).cumprod(), (1+r_kat).cumprod(), (1+r_bist).cumprod()
-
-idx_dates, c_port, c_kat, c_bist = fetch_chart_data()
-mask = (idx_dates >= pd.Timestamp(start_date)) & (idx_dates <= pd.Timestamp(end_date))
-f_dates = idx_dates[mask]
-if len(f_dates) > 0:
-    f_port, f_kat, f_bist = c_port[mask] / c_port[mask].iloc[0], c_kat[mask] / c_kat[mask].iloc[0], c_bist[mask] / c_bist[mask].iloc[0]
-else:
-    f_port, f_kat, f_bist = c_port[mask], c_kat[mask], c_bist[mask]
-
-st.subheader(t["chart_title"].format(start_date, end_date))
-fig = go.Figure()
-fig.add_trace(go.Scatter(x=f_dates, y=f_port.values if len(f_dates)>0 else [], name=t["leg1"], line=dict(color='#00ff00', width=3)))
-fig.add_trace(go.Scatter(x=f_dates, y=f_kat.values if len(f_dates)>0 else [], name=t["leg2"], line=dict(color='#1E90FF', width=2)))
-fig.add_trace(go.Scatter(x=f_dates, y=f_bist.values if len(f_dates)>0 else [], name=t["leg3"], line=dict(color='#ff0000', width=1.5, dash='dot')))
-fig.update_layout(template="plotly_dark", height=380, margin=dict(l=0, r=0, t=30, b=0))
-st.plotly_chart(fig, use_container_width=True)
-st.markdown("---")
-
-# ==========================================
-# 9. الجداول السفلية والتقرير
-# ==========================================
-st.subheader(t["tbl_title"].format(period_view))
-if "Quarterly" in period_view or "ربع" in period_view or "Çeyreklik" in period_view:
-    s_k, l_k, r_k, s_t, l_t, r_t = "88.5%", "₺ 1.2 B", "₺ 8.4 B", "34.2%", "₺ 4.8 B", "₺ 12.1 B"
-elif "Semi" in period_view or "نصف" in period_view or "Yarı" in period_view:
-    s_k, l_k, r_k, s_t, l_t, r_t = "91.2%", "₺ 2.1 B", "₺ 17.6 B", "36.8%", "₺ 9.5 B", "₺ 25.4 B"
-else:
-    s_k, l_k, r_k, s_t, l_t, r_t = "94.0%", "₺ 3.8 B", "₺ 35.2 B", "39.6%", "₺ 18.2 B", "₺ 53.0 B"
-
-periodic_df = pd.DataFrame([[t["r1"], s_k, "6.0%", r_k, l_k], [t["r2"], s_t, "60.4%", r_t, l_t]], columns=t["t_cols"])
-st.markdown(periodic_df.to_html(index=False, escape=False), unsafe_allow_html=True)
-st.markdown("---")
-st.subheader(t["rep_title"])
-
-# تعديل السطر المسبب للمشكلة لمنع أي أخطاء متعلقة بالسطور والنصوص المنسدلة
-report_html = '<div class="report-box">' + t["rep_body"].format(start_date, end_date, period_view, s_k, s_t, l_k, l_t) + '</div>'
-st.markdown(report_html, unsafe_allow_html=True)
-st.markdown("---")
-
-# ==========================================
-# 10. سجل المحرك اللحظي (Terminal)
-# ==========================================
-st.subheader(t["term_title"])
-live_terminal_html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-    body {{ background-color: #0c0c0c; color: #00ff00; font-family: 'Courier New', monospace; font-size: 13px; margin: 0; padding: 15px; overflow: hidden; }}
-    #terminal-screen {{ height: 170px; overflow-y: auto; display: flex; flex-direction: column; padding-right: 10px; }}
-    .log-line {{ margin-bottom: 5px; line-height: 1.4; }}
-    ::-webkit-scrollbar {{ width: 8px; }}
-    ::-webkit-scrollbar-track {{ background: #0c0c0c; }}
-    ::-webkit-scrollbar-thumb {{ background: #00ff00; }}
-</style>
-</head>
-<body>
-    <div id="terminal-screen">
-        <div class="log-line">> [INIT] Booting IEAI Omni-Scanner Engine... OK.</div>
-        <div class="log-line">> [SYSTEM] Legal Entity Database Synchronized.</div>
-        <div class="log-line">> [SYSTEM] UI Language synchronized. Selected: {lang_choice}</div>
-    </div>
-    <script>
-        const logs = [
-            "[AI_ADVISOR] Ranked optimal buy opportunities based on Wealth Preservation metrics.",
-            "[SCAN] Analyzing real-time order book... Liquidity is optimal.",
-            "[AI_FILTER] Deep scan: Verifying debt-to-equity ratio < 30%... Clear.",
-            "[MATH] Recalculating systemic volatility (Z-Score)... Z = -1.12 (STABLE).",
-            "[COMPLIANCE] Verified zero Haram/Riba activity in recommended equities.",
-            "[EXEC] Recommendation Engine generated top picks for user."
-        ];
-        const term = document.getElementById('terminal-screen');
-        setInterval(() => {{
-            const randomLog = logs[Math.floor(Math.random() * logs.length)];
-            const timeStr = new Date().toLocaleTimeString('en-GB', {{ hour12: false }});
-            const newLine = document.createElement('div');
-            newLine.className = 'log-line';
-            newLine.innerText = "> [" + timeStr + "] " + randomLog;
-            term.appendChild(newLine);
-            term.scrollTop = term.scrollHeight;
-        }}, 2500); 
-    </script>
-</body>
-</html>
-"""
-components.html(live_terminal_html, height=200)
+st.sidebar.download_button(t[10], templates_zip(), "input-templates.zip", "application/zip")
+uploaded = st.file_uploader(t[3], type=["zip"])
+default = Protocol()
+with st.sidebar.form("protocol_form"):
+    st.subheader(t[11])
+    profile = st.selectbox(t[11], ["research_30", "attested_membership"], format_func=lambda x: t[13] if x == "research_30" else t[12])
+    study_start = st.date_input(t[37], pd.Timestamp(default.study_start).date())
+    evaluation_start = st.date_input(t[14], pd.Timestamp(default.evaluation_start).date())
+    holdout_start = st.date_input(t[15], pd.Timestamp(default.holdout_start).date())
+    study_end = st.date_input(t[16], pd.Timestamp(default.study_end).date())
+    threshold = st.number_input(t[17], .01, .90, .10, .01)
+    horizon = st.number_input(t[18], 2, 126, 20)
+    cap = st.number_input(t[19], .01, 1.0, .10, .01)
+    commission = st.number_input(t[20], 0.0, 100.0, 5.0, 1.0)
+    slippage = st.number_input(t[21], 0.0, 100.0, 10.0, 1.0)
+    capital = st.number_input(t[38], 1000.0, 1e10, 100000.0, 1000.0)
+    exposure = st.selectbox(t[35], ["mean_score", "fully_invested"], format_func=lambda x: t[33] if x == "mean_score" else t[34])
+    submitted = st.form_submit_button(t[4], disabled=uploaded is None)
+if uploaded is not None:
+    input_key = sha256(uploaded.getvalue()).hexdigest()
+    if st.session_state.get("dataset_key") != input_key:
+        st.session_state.pop("result", None)
+        st.session_state["dataset_key"] = input_key
+if submitted:
+    try:
+        protocol = replace(default, screening_profile=profile, study_start=str(study_start),
+                study_end=str(study_end), evaluation_start=str(evaluation_start), holdout_start=str(holdout_start),
+                loss_threshold=threshold, horizon=int(horizon), max_stock_weight=cap,
+                commission_bps=commission, slippage_bps=slippage, initial_capital=capital, exposure_policy=exposure)
+        dataset = Dataset.from_zip(uploaded.getvalue())
+        events = []
+        progress = st.empty()
+        def update(stage):
+            events.append(stage)
+            progress.info(f"{t[25]}: {stage}")
+        st.session_state["result"] = run_experiment(dataset, protocol, progress=update)
+        st.session_state["events"] = events
+        progress.success(t[36])
+    except (DataError, TrainingUnavailable, ValueError, KeyError) as exc:
+        st.session_state.pop("result", None)
+        st.error(f"{t[26]}: {exc}")
+if "result" in st.session_state:
+    result = st.session_state["result"]
+    report = result["report"]
+    if report["dataset_kind"] == "synthetic":
+        st.error(t[27])
+    if report["audit_status"] != "reviewed":
+        st.warning(t[28])
+    st.caption(t[23])
+    st.caption(json.dumps(report["protocol"], ensure_ascii=False))
+    tabs = st.tabs([t[5], t[6], t[7], t[8]])
+    with tabs[0]:
+        curves = {name: test.daily.set_index("date").index_level for name, test in result["backtests"].items()}
+        curves.update({name: frame.set_index("date").index_level for name, frame in result["benchmarks"].items()})
+        st.line_chart(pd.DataFrame(curves))
+        st.dataframe(pd.DataFrame({name: metrics["full_test"] for name, metrics in report["metrics"].items()}).T)
+        st.dataframe(pd.DataFrame(report["forecast_validation"]))
+        for warning in report["warnings"]:
+            st.warning(warning)
+    with tabs[1]:
+        st.dataframe(result["eligibility"])
+        st.dataframe(result["scores"].drop(columns=["target_event", "forward_loss", "label_end"], errors="ignore"))
+    with tabs[2]:
+        st.write(t[24])
+        st.dataframe(pd.DataFrame({t[25]: st.session_state.get("events", [])}))
+        st.dataframe(result["model_audit"])
+        st.write(t[30])
+        st.dataframe(result["backtests"]["adaptive_ml"].trades)
+        st.write(t[29])
+        st.dataframe(result["backtests"]["adaptive_ml"].positions)
+    with tabs[3]:
+        st.json(report)
+        st.download_button(t[22], result_zip(result), "ieai-experiment.zip", "application/zip")

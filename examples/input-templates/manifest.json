@@ -1,0 +1,52 @@
+{
+  "dataset_id": "REPLACE_WITH_DATASET_ID",
+  "dataset_kind": "real",
+  "audit_status": "unreviewed",
+  "currency": "TRY",
+  "universe": "Document historical point-in-time universe selection",
+  "price_convention": "Document close/total-return/volume/shares conventions and corporate actions",
+  "sources": [
+    {
+      "file": "prices.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "eligibility.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "shares.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "financials.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "benchmarks.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "factors.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    },
+    {
+      "file": "cpi.csv",
+      "provider": "REPLACE",
+      "url": "https://REPLACE_WITH_SOURCE_URL",
+      "retrieved_at": "REPLACE"
+    }
+  ]
+}

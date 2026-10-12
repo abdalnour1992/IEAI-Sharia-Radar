@@ -1,0 +1,2 @@
+# Independent verification of HAC covariance in CI.
+statsmodels==0.14.5

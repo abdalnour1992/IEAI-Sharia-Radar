@@ -1,0 +1,37 @@
+name: Research integrity and application tests
+on:
+  push:
+    branches: [main, 'research/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install pinned runtime and independent verification dependencies
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Compile source
+        run: python -m compileall -q ieai app.py tests
+      - name: Research and Streamlit tests
+        run: python -m unittest discover -s tests -v
+      - name: End-to-end CLI on clearly labelled synthetic software fixture
+        run: |
+          python -m tests.fixtures /tmp/ieai-fixture
+          python -m ieai.cli run --dataset /tmp/ieai-fixture --protocol /tmp/ieai-fixture/fixture_protocol.json --allow-synthetic --output validation/software-test-only
+          python -m pip freeze > validation/software-test-only/runtime-lock.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: software-test-only-not-empirical-python-${{ matrix.python }}
+          path: validation/software-test-only
