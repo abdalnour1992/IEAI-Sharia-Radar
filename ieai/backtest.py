@@ -97,12 +97,17 @@ def simulate(scores, protocol, strategy):
                       "net_return": net_return, "cash": cash, "exposure": float(holdings.sum() / nav),
                       "cost_try": cost, "traded_notional_try": gross_notional,
                       "requested_exposure": requested_exposure, "signal_date": signal_date,
-                      "holdout": date >= pd.Timestamp(protocol.holdout_start)})
+                      "holdout": date >= pd.Timestamp(protocol.holdout_start),
+                      "elapsed_session": i > 0})
         nav_previous = nav
     return Backtest(pd.DataFrame(daily), pd.DataFrame(positions), pd.DataFrame(trades))
 
 
 def performance(daily, protocol, rf=None):
+    # The initial NAV row is a valuation anchor, not a return interval. A sliced
+    # holdout's first actual return is an interval and must remain in the sample.
+    if "elapsed_session" in daily:
+        daily = daily[daily.elapsed_session].copy()
     returns = daily.set_index("date").net_return
     if len(returns) < 2:
         return {"status": "insufficient_sessions"}
@@ -117,12 +122,12 @@ def performance(daily, protocol, rf=None):
     annual = protocol.annual_sessions
     return {"status": "computed", "sessions": len(returns),
             "total_return": float(wealth.iloc[-1] - 1),
-            "cagr": float(wealth.iloc[-1] ** (annual / max(len(returns) - 1, 1)) - 1),
+            "cagr": float(wealth.iloc[-1] ** (annual / len(returns)) - 1),
             "annual_volatility": deviation * np.sqrt(annual),
             "sharpe": float(excess.mean() / deviation * np.sqrt(annual)) if deviation > 0 else None,
             "sortino": float(excess.mean() / downside * np.sqrt(annual)) if downside > 0 else None,
             "max_drawdown": float((1 - wealth.to_numpy() / peak).max()),
-            "positive_session_fraction": float((returns.iloc[1:] > 0).mean()),
+            "positive_session_fraction": float((returns > 0).mean()),
             "total_cost_try": float(daily.cost_try.sum()),
             "traded_notional_try": float(daily.traded_notional_try.sum()),
             "mean_exposure": float(daily.exposure.mean()),

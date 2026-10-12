@@ -39,6 +39,8 @@ def hac_ols(y, x, names, lags=5):
 def factor_models(daily, factors):
     if factors.empty:
         return {"status": "missing_factors", "reason": "Supply TRY, same-frequency factors suitable for the Turkish market"}
+    if "elapsed_session" in daily:
+        daily = daily[daily.elapsed_session].copy()
     merged = daily[["date", "net_return"]].merge(factors, on="date", how="inner")
     if len(merged) != len(daily):
         return {"status": "incomplete_factor_coverage", "matched": len(merged), "required": len(daily)}
