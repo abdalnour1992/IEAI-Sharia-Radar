@@ -70,7 +70,7 @@ def run_experiment(dataset, protocol, allow_synthetic=False, progress=None):
             warnings.append(f"Incomplete external benchmark: {name}; no filling or fabricated comparison")
             continue
         benchmark_returns = levels.pct_change(fill_method=None).fillna(0)
-        b = tests["adaptive_ml"].daily[["date", "holdout"]].copy()
+        b = tests["adaptive_ml"].daily[["date", "holdout", "elapsed_session"]].copy()
         b["net_return"] = benchmark_returns.to_numpy()
         b["nav"] = protocol.initial_capital * (1 + b.net_return).cumprod()
         b["index_level"] = b.nav / protocol.initial_capital * 100

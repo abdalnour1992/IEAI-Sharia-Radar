@@ -181,6 +181,24 @@ class Execution(unittest.TestCase):
         result = performance(frame, fixture_protocol())
         self.assertAlmostEqual(result["max_drawdown"], .2)
 
+    def test_annualization_counts_actual_return_intervals(self):
+        dates = pd.bdate_range("2023-01-02", periods=4)
+        frame = pd.DataFrame({"date": dates, "net_return": [0.,.01,.01,.01],
+                              "elapsed_session": [False,True,True,True],
+                              "cost_try": 0., "traded_notional_try": 0., "exposure": 1.})
+        full = performance(frame, fixture_protocol())
+        sliced = performance(frame.iloc[1:], fixture_protocol())
+        self.assertEqual(full["sessions"],3)
+        self.assertAlmostEqual(full["cagr"],1.01**252-1,places=9)
+        self.assertAlmostEqual(full["cagr"],sliced["cagr"],places=9)
+
+    def test_sliced_period_retains_its_first_profitable_session(self):
+        frame = pd.DataFrame({"date": pd.bdate_range("2023-07-03",periods=3),
+                              "net_return": [.02,-.01,-.01], "elapsed_session": True,
+                              "cost_try": 0., "traded_notional_try": 0., "exposure": 1.})
+        result = performance(frame,fixture_protocol())
+        self.assertAlmostEqual(result["positive_session_fraction"],1/3)
+
 
 class FullResearchFlow(unittest.TestCase):
     @classmethod
