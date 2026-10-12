@@ -36,18 +36,37 @@ def hac_ols(y, x, names, lags=5):
             "interpretation": "Association only; alpha is not a capital-safety guarantee"}
 
 
-def factor_models(daily, factors):
-    if factors.empty:
+def factor_models(daily, factors, market_factors=None, ff3_factors=None):
+    ff3_factors = pd.DataFrame() if ff3_factors is None else ff3_factors
+    if factors.empty and ff3_factors.empty:
+        if market_factors is not None and not market_factors.empty:
+            rows = daily[daily.elapsed_session].copy() if "elapsed_session" in daily else daily.copy()
+            merged = rows[["date", "net_return"]].merge(market_factors, on="date", how="inner")
+            if len(merged) != len(rows):
+                return {"status": "incomplete_market_factor_coverage", "matched": len(merged), "required": len(rows)}
+            x = np.column_stack([np.ones(len(merged)), merged.market_excess])
+            return {"status": "market_controls_only_ff3_ff5_unavailable",
+                    "capm": hac_ols(merged.net_return - merged.rf, x, ["alpha", "market_excess"]),
+                    "reason": "SMB/HML/RMW/CMA are absent; no zero or US-factor substitution"}
         return {"status": "missing_factors", "reason": "Supply TRY, same-frequency factors suitable for the Turkish market"}
     if "elapsed_session" in daily:
         daily = daily[daily.elapsed_session].copy()
-    merged = daily[["date", "net_return"]].merge(factors, on="date", how="inner")
-    if len(merged) != len(daily):
-        return {"status": "incomplete_factor_coverage", "matched": len(merged), "required": len(daily)}
-    y = merged.net_return - merged.rf
     output = {}
-    for label, fields in [("ff3", ["market_excess", "smb", "hml"]),
-                          ("ff5", ["market_excess", "smb", "hml", "rmw", "cma"])]:
+    if not factors.empty and not ff3_factors.empty:
+        common = factors[["date", "rf", "market_excess"]].merge(ff3_factors[["date", "rf", "market_excess"]], on="date", suffixes=("_5", "_3"))
+        if not np.allclose(common[["rf_5", "market_excess_5"]], common[["rf_3", "market_excess_3"]], rtol=0, atol=1e-10):
+            return {"status": "inconsistent_ff3_ff5_market_or_cash_reference"}
+    for label, source, fields in [("ff3", ff3_factors, ["market_excess", "smb", "hml"]),
+                                 ("ff5", factors, ["market_excess", "smb", "hml", "rmw", "cma"])]:
+        if source.empty:
+            output[label] = {"status": "missing_model_specific_factors",
+                             "reason": "Classic FF3 and FF5 use different SMB constructions; supply separate documented inputs"}
+            continue
+        merged = daily[["date", "net_return"]].merge(source, on="date", how="inner")
+        if len(merged) != len(daily):
+            output[label] = {"status": "incomplete_factor_coverage", "matched": len(merged), "required": len(daily)}
+            continue
+        y = merged.net_return - merged.rf
         x = np.column_stack([np.ones(len(merged)), merged[fields].to_numpy()])
         output[label] = hac_ols(y, x, ["alpha", *fields])
     return output

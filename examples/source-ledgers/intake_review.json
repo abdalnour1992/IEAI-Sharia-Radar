@@ -1,0 +1,15 @@
+{
+  "dataset_id": "REPLACE_WITH_REVIEWED_DATASET_ID",
+  "source_review_status": "unreviewed",
+  "study_start": "2021-10-01",
+  "study_end": "2025-12-31",
+  "universe": "Historical XK100; initial snapshot and continuity evidence required",
+  "price_unit_basis": "REPLACE_WITH_REVIEWED_MATCHING_PRICE_VOLUME_SHARES_BASIS",
+  "membership_coverage": {
+    "initial_member_count": null,
+    "continuity_review_status": "unreviewed",
+    "complete_through": null,
+    "rule_set": "historical_XK100_versions_and_effective_dates"
+  },
+  "sources": []
+}

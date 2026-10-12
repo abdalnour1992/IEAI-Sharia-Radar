@@ -18,12 +18,14 @@ SCHEMAS = {
                    "value_traded_try", "is_tradable"],
     "eligibility.csv": ["symbol", "available_at", "effective_from", "effective_to",
                         "eligible", "rule_set", "source_url"],
-    "shares.csv": ["symbol", "available_at", "shares_outstanding", "source_url"],
+    "shares.csv": ["symbol", "available_at", "effective_from", "shares_outstanding", "source_url"],
     "financials.csv": ["symbol", "available_at", "period_end", "total_assets",
                        "interest_bearing_debt", "interest_bearing_assets", "total_revenue",
                        "noncompliant_revenue", "activity_pass", "other_criteria_pass", "source_url"],
     "benchmarks.csv": ["date", "benchmark", "level", "kind", "currency"],
     "factors.csv": ["date", "market_excess", "smb", "hml", "rmw", "cma", "rf"],
+    "market_factors.csv": ["date", "market_excess", "rf"],
+    "factors_ff3.csv": ["date", "market_excess", "smb", "hml", "rf"],
     "cpi.csv": ["date", "cpi"],
 }
 REQUIRED = {"prices.csv", "eligibility.csv", "shares.csv", "manifest.json"}
@@ -66,8 +68,8 @@ def validate_frame(name, frame):
                 raise DataError(f"{name}: nonfinite {field}")
     keys = {
         "prices.csv": ["date", "symbol"], "eligibility.csv": ["symbol", "available_at", "effective_from"],
-        "shares.csv": ["symbol", "available_at"], "financials.csv": ["symbol", "available_at"],
-        "benchmarks.csv": ["date", "benchmark"], "factors.csv": ["date"], "cpi.csv": ["date"],
+        "shares.csv": ["symbol", "available_at", "effective_from"], "financials.csv": ["symbol", "available_at"],
+        "benchmarks.csv": ["date", "benchmark"], "factors.csv": ["date"], "factors_ff3.csv": ["date"], "market_factors.csv": ["date"], "cpi.csv": ["date"],
     }[name]
     if frame.duplicated(keys).any():
         raise DataError(f"{name}: ambiguous duplicate {keys}")
@@ -97,6 +99,8 @@ def validate_frame(name, frame):
             raise DataError("Benchmark kind changes within a series")
     if name == "cpi.csv" and (frame.cpi <= 0).any():
         raise DataError("CPI must be positive")
+    if name in {"factors.csv", "factors_ff3.csv", "market_factors.csv"} and (frame.rf <= -1).any():
+        raise DataError("Cash reference returns must exceed -100%")
     return frame.sort_values(keys).reset_index(drop=True)
 
 
