@@ -26,8 +26,8 @@ class KapEvidenceTests(unittest.TestCase):
             "observation": "total_assets", "raw_value": "22194163",
             "raw_unit": "TRY_thousands", "scale_to_try": "1000",
             "period_end": "2021-12-31", "published_at_source": "2022-02-25 07:26:37",
-            "primary_pdf_page": "Turkish report p.9",
-            "translation_pdf_page": "English report p.9",
+            "primary_pdf_page": "Turkish report p.1",
+            "translation_pdf_page": "English report p.1",
             "source_url": self.manifest["source_url"],
             "primary_pdf_sha256": "a" * 64,
             "review_status": "source_observed_not_certified"
