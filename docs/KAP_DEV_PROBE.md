@@ -28,3 +28,20 @@ Evidence: user-provided portal screenshots and KAP VYK OpenAPI 3.0.3, reviewed 2
 - Avoid bulk calls or any rate-limit workaround.
 
 See [KAP_VYK_OPENAPI_ASSESSMENT.md](KAP_VYK_OPENAPI_ASSESSMENT.md).
+
+## Verified portal-console disclosure chain — 2026-10-13
+
+**User-provided screenshots (no actual API response archives; no secrets saved):**
+
+| Request (dev gateway through portal) | Result | Evidence limitations |
+|---|---|---|
+| `GET /lastDisclosureIndex` | HTTP 200; `lastDisclosureIndex: "1231017"`, 236 ms | Development index, not production maximum |
+| `GET /disclosures?disclosureIndex=1231017` | HTTP 200; one `DUY` / `DUY` record for `companyId=51`; `subReportIds=["oda-90000_TestNotification"]` | Explicit **test notification**, not financial data |
+| `GET /disclosureDetail/1231017?fileType=html` | HTTP 200; 87.3 KiB, 54 ms; sender KAMUYU AYDINLATMA PLATFORMU, subject `Test Notification` | Detail-chain functionality only; no verified 2021–2025 company financial history |
+
+An initial missing-auth `401` for `/disclosures` resolved after portal reauthorization. Repeated request errors cannot be ascribed to provider outage without evidence.
+
+**Next falsifiable historical-archive check:** The public KAP website lists a **real financial report** for SASA POLYESTER SANAYİ A.Ş., disclosure index `1004314`, sent **2022-02-25 07:26:37**, year `2021`, type `FR`, with 2021 annual financial reports and attached PDF documents. Official public source: https://www.kap.org.tr/tr/Bildirim/1004314. Subject to portal authorization, perform **one** `GET /disclosureDetail/1004314?fileType=html` on the dev console. If 200 with matching real issuer/date/report, distinguish true historical coverage from synthetic fixtures; if 404 or empty, this only limits the *dev gateway* and does not establish the production archive's status. In either case, avoid broad indexing until production permissions and history are confirmed.
+
+**Important:** Do not infer SASA belongs to XK100 from this choice. This one company is solely a public financial-report API compatibility test.
+
