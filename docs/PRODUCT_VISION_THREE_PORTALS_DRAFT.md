@@ -2,6 +2,22 @@
 
 **Source:** owner's 2026-10-14 requirements and screenshots of a previous prototype. **Status: SPEC_FOR_REVIEW — not a claim that the capabilities already exist.** This draft must NOT silently change the locked `config/protocol.json` research experiment or portray historical screenshots as empirical evidence.
 
+## Owner scope decision — CONFIRMED 2026-10-14
+
+**Binding project scope direction, not a university protocol amendment:**
+
+1. **Academic thesis deliverable takes priority and must retain the university-declared pair:** `BIST 100 (XU100)` **versus** `BIST Katılım 100 (XK100)`, with effective-date historical compositions and point-in-time market/financial inputs as covered by the existing `2021-10-01 — 2025-12-31` research protocol. This is a comparison of **stock-index universes and resulting investable strategies**, not an assertion that either index consists of 100 individual *banks*.
+2. **A separate sectoral/institutional study is accepted as a second workstream:** participation banks/financial institutions versus conventional banks/financial institutions. This separate workstream is **not** part of required university thesis deliverables and must not delay, rewrite, contaminate or replace the academic XLS/benchmark/backtest results unless a later university-approved scope change is explicitly issued.
+3. **Portal roadmap includes both comparative contexts** with explicit tabs for `Market Index Comparison` and `Financial Institution Comparison`. Investor public screen presents both current/dated 100-constituent lists with labels by **membership**, while eligibility/compliance is a second independent variable. A stock may belong to **both** indexes. Bank-only panels use the **actual number** of qualifying institutions, never fabricate two 100-bank panels.
+4. **Academic hypothesis wording:** investigate whether historically verified Sharia-screened equity selection / the IEAI adaptive strategy can sustain competitive or higher **risk-adjusted return and smaller drawdowns** than the broad-market BIST 100 and suitable baselines. Academic report must show outcomes honestly even if results do not establish outperformance. Results on share prices **cannot alone prove causal superior accounting profitability of financial institutions**.
+5. **Deliverables tied to the university pair:** dated index constituent panel and overlap, auditable rule-defined eligibility, market/financial data and publication availability audit, as-of 2021-2025 portfolios, total-return benchmark against XU100 and XK100, validated experiment comparing adaptive ML vs static/rule baselines, costs and risk-adjusted performance, Turkish CAPM/FF3/FF5 when sourced, robustness and defensible financial conclusions. Other proposals (live private-bank alerts, bidding, personalized trade signals) belong to product phases, **not academic graduation dependencies**.
+6. **No current runtime or frozen research protocol modification is authorized by this product-scope clarification alone.** Keep `config/protocol.json`, existing `ieai` screening and holdout settings, and existing sample gates as-is pending precise academic requirement checks. If the signed university thesis document explicitly defines a different time span, benchmark type, comparison operator or cohort, request and reconcile it before code changes.
+7. **Legal and epistemic honesty** applies to both workstreams: no claim that Sharia rules guarantee profits/lower risk, no "safe buy" promise, no internally inferred rule breach from external price data alone, no fabricated 2019-2026 graphs or live tick feed.
+
+**Priority:** complete the academic XU100/XK100 requirements first; build reusable product infrastructure in parallel if it does not interfere. Bank/institutional comparative analytics are an independent later work package.
+
+---
+
 ## Executive intent
 
 Build one evidence-led system with two clearly separated modes:
@@ -11,7 +27,7 @@ Build one evidence-led system with two clearly separated modes:
 
 Long-term role of IEAI standards association is **independent issuer of standards** and role of MAIUMAS, subject to later agreements, is **implementation of technical products**. The current `research_30` model is not certified IEAI-CPS or complete TKBB rule implementation.
 
-## Critical population semantics (UNRESOLVED — OWNER DECISION REQUIRED)
+## Population semantics (ACADEMIC PAIR CONFIRMED; BANK SUBSTUDY SEPARATE)
 
 - **XK100** is 100 shares of participation-screened **public companies across many sectors**; **NOT 100 participation banks or 100 participation financial institutions**. See official BIST: https://www.borsaistanbul.com/en/indices/bist-stock-indices/participation.
 - **XU100** is the broad-market benchmark of 100 shares and can **overlap** XK100. It is NOT 100 conventional banks, nor necessarily 100 non-compliant stocks.
@@ -86,4 +102,4 @@ Proposed page states: `historical_as_of`, `licensed_live`, `delayed`, `stale`, `
 5. **Institutional oversight beta:** event-driven alerts from public disclosures, review and escalation, private institution connectors only under lawful access.
 6. **Advanced surveillance:** independently validated market herding/abuse proxy, latency & reliability SLAs, licensed order-stream integration; internal bank Sharia rule engine with human review and deployment controls.
 
-**Unresolved owner question:** clarify whether the 100+100 empirical sample refers to **shares of XK100/XU100**, **100 financial institutions of each type**, or **an equity index study plus a separate participating-versus-conventional-bank cohort**. Until then this document remains a draft, not a modification of any scientific protocol or approved rulebook.
+**Resolved by owner (2026-10-14):** University thesis must remain the BIST100 vs BIST Katılım100 index-based study; participation-vs-conventional financial institutions are a separately scoped future study. University document/rulebook and data-graduation gates remain independently subject to review.
