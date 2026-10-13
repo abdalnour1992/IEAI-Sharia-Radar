@@ -1,0 +1,17 @@
+{
+  "dataset_id": "SASA_KAP_1004314_CONS_2021_PROVISIONAL",
+  "status": "PILOT_EXTRACTION_PENDING_REVIEW",
+  "research_dataset_complete": false,
+  "filing_url": "https://www.kap.org.tr/tr/Bildirim/1004314",
+  "period_end": "2021-12-31",
+  "publication_timestamp_as_listed": "2022-02-25T07:26:37",
+  "publication_timezone": "unverified",
+  "currency": "TRY",
+  "monetary_unit_multiplier": 1000,
+  "consolidation": "consolidated",
+  "primary_pdf_name": "SASA SPK 31.12.2021.pdf",
+  "primary_pdf_sha256": "605a4a1f8fcd9c2dfa381849cc3d53fde3bde8aacc1813831d8017da84b74b97",
+  "translation_pdf_sha256": "417df4da711991f0eb55a8f2e7d4f760e521e18c0b388dc5c46a5f3fc5ff9cc7",
+  "kap_pdf_sha256": "943a9b0ba40c1082a9ddb3cea42e516c1ce0ed0d136da52e70b7fd28a17b4bcc",
+  "status_note": "source observations, no complete screened financial record and no XK100 membership claim"
+}
