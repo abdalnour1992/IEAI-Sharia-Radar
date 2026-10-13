@@ -45,3 +45,18 @@ An initial missing-auth `401` for `/disclosures` resolved after portal reauthori
 
 **Important:** Do not infer SASA belongs to XK100 from this choice. This one company is solely a public financial-report API compatibility test.
 
+
+## Historical report negative test (user portal screenshot, 2026-10-13)
+
+- In the authorized **development** API console, `GET /disclosureDetail/1004314?fileType=html` returned **HTTP 400**, JSON `{"code":"ER005","message":"Bildirim bulunamadı. Disclosure not found."}`, 69 ms. Request path and `fileType` were correctly supplied; this is **not** an HTTP 401 authentication failure.
+- Independently, the **public production KAP website** visibly serves the original historical record [Disclosure 1004314](https://www.kap.org.tr/tr/Bildirim/1004314): SASA POLYESTER SANAYİ A.Ş., published 2022-02-25 07:26:37, type FR, annual 2021 financial report, consolidated financial statements, currency presentation **1,000 TRY**, with two original PDF attachments.
+- The distinction establishes that an **existing public historical KAP website record is absent from the queried development API dataset**. It does **not** prove whether authorized production API access includes the same historical record.
+- **Do not use date 2021-12-31 as public availability**; 2022-02-25 07:26:37 is the source-reported publication timestamp (verify timezone for point-in-time transformation). Preserve the original nominal unit multiplier.
+- SASA is an **illustrative technical sample**, not evidence of past XK100 constituents.
+
+### Safe next direction
+
+1. Stop testing randomly selected historical IDs on the development gateway. Verify the **production gateway URL and subscription/authorization requirements** in the account's official instructions; do not assume that the documented test token mechanism grants production rights.
+2. Meanwhile, original historical reports are accessible via KAP's public website. Assess permitted manual downloads and original PDF collection as an **alternative source path**, recording checksum, disclosure publication timestamp, fiscal period, accounting units, consolidation and corrections for every observation. Do not bulk scrape without permission.
+3. Before any real research import, verify license conditions, source availability and completeness, and distinguish data collected from production website versus API sandbox. The blocker for G03/G04 remains open; the software interface smoke-test milestone is complete.
+
