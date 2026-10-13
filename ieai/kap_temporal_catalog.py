@@ -80,10 +80,10 @@ def audit_catalogs(paths, cutoff: date):
     seen = set()
     rows = []
     source_hashes = {}
-    for path in paths:
+    for catalog_number, path in enumerate(paths, start=1):
         path = Path(path)
         raw_rows = _read_catalog(path)
-        source_hashes[path.name] = sha256(path.read_bytes()).hexdigest()
+        source_hashes[f"{catalog_number}:{path.name}"] = sha256(path.read_bytes()).hexdigest()
         for raw in raw_rows:
             row = normalize(raw)
             identity = (row["kap_disclosure_index"], row["filename"])
