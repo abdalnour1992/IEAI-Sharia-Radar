@@ -60,3 +60,26 @@ python -m ieai.kap_pdf_evidence \
 This workflow proves the software can validate **one** historical annual document and supports scalable **offline processing of authorized bulk exports**, not a completed 2021–2025 empirical panel. BIST XK100 universe snapshots, publication metadata/corrections, capital-action and price units, sector-specialized mappings, KAP production rights and Turkish FF3/FF5 remain open.
 
 **No user secrets or full original PDF attachments are stored in GitHub.**
+
+
+## 6. Inventory official bulk RAR/ZIP exports locally
+
+After downloading from KAP **through its documented UI** and extracting the archive safely with 7-Zip, keep the original archive unchanged. This inventory records exact bytes for every supported file but **does not** call any KAP site/API, extract archives itself or treat filenames as issuer/date proof.
+
+```sh
+python -m ieai.kap_archive_inventory \
+  --archive "/safe/path/KAP-2021-FY.rar" \
+  --extracted-dir "/safe/path/KAP-2021-FY-extracted" \
+  --year 2021 --period FY \
+  --output "/safe/path/new/kap_2021_FY_inventory.json"
+```
+
+Period values: `3M, 6M, 9M, FY, ALL`. The `.rar` extension is only an illustrative filename; use the actual one produced by KAP. File types supported by inventory are PDF, XML, CSV, XLS, XLSX, TXT, JSON, ZIP and RAR. The inventory rejects symlinks, unknown extensions, oversized files and fake archive magic. It never executes embedded content.
+
+**Next step after inventory:** verify report content and the public disclosure URL/timestamp for selected indexed companies before preparing reviewable source ledgers. If the download contains only tabular statements rather than audited PDFs, use the original disclosure pages to collect the notes needed for debt, interest and fiscal disclosure classification.
+
+## 7. Current milestone and blockers
+
+As of this pilot: `SASA_2021_DOCUMENT_INTEGRITY_VERIFIED` for the locally submitted source PDFs, **29** observed values with page evidence, basic borrowing/interest identities reconciled. This is an offline reproducibility milestone only.
+
+Open: first XK100 2021-10-01 snapshot and historical continuity, per-issuer annual/quarterly report and timestamp/revision coverage, financial account treatment and approved Sharia classification rulebook, capital action / share bases, authorized scale of future downloads, separate Turkey FF3/FF5 sources. Do not set empirical dataset complete while any remain.
