@@ -1,0 +1,23 @@
+{
+  "dataset_id": "SASA_KAP_1004314_CONS_2021_NUMERIC_EVIDENCE_PILOT",
+  "status": "DOCUMENT_EXTRACTED_AND_CROSSCHECKED_PENDING_HUMAN_AND_METHODOLOGY_REVIEW",
+  "research_dataset_complete": false,
+  "source_url": "https://www.kap.org.tr/tr/Bildirim/1004314",
+  "source": "SASA SPK 31.12.2021.pdf",
+  "translated_reference": "ENGLISH-SASA SPK 31.12.2021.pdf",
+  "filing_export": "1004314.pdf",
+  "files_sha256": {
+    "kap_export": "943a9b0ba40c1082a9ddb3cea42e516c1ce0ed0d136da52e70b7fd28a17b4bcc",
+    "turkish_original": "605a4a1f8fcd9c2dfa381849cc3d53fde3bde8aacc1813831d8017da84b74b97",
+    "english_translation": "417df4da711991f0eb55a8f2e7d4f760e521e18c0b388dc5c46a5f3fc5ff9cc7"
+  },
+  "issuer": "SASA POLYESTER SANAYI A.S.",
+  "symbol": "SASA",
+  "fiscal_period_end": "2021-12-31",
+  "publication_timestamp_as_listed": "2022-02-25 07:26:37",
+  "publication_timezone": "unverified",
+  "consolidated": true,
+  "currency": "TRY",
+  "raw_monetary_unit": "1000 TRY",
+  "note": "Strictly provisional page-level numeric source evidence; no index membership or compliance attested"
+}
