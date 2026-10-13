@@ -90,6 +90,9 @@ def validate_observations(rows: list[dict], manifest: dict,
         field = r["observation"]
         if not field or field in values:
             raise EvidenceError("Blank/duplicate account observation")
+        publication = manifest["publication_timestamp_as_listed"]
+        if not r.get("bundle_id") or not r.get("published_at_source", "").startswith(publication):
+            raise EvidenceError(f"Missing source bundle or original publication timestamp: {field}")
         if (r["symbol"] != manifest["symbol"] or r["source_url"] != ref
                 or r["primary_pdf_sha256"] != digest
                 or r["period_end"] != manifest["fiscal_period_end"]
